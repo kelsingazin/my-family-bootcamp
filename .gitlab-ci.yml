@@ -1,0 +1,135 @@
+variables:
+  REGISTRY: registry.gitlab.com
+  GROUP: bootcamp_myfamily
+  PROJECT: my_family_backend
+  APP_IMAGE: ${REGISTRY}/${GROUP}/${PROJECT}
+  DB_IMAGE: postgres:14
+
+stages:
+  - build
+  - publish
+  - deploy
+
+build:
+  stage: build
+  image: maven:3.8.6-eclipse-temurin-17
+  script:
+    - mvn clean package
+  cache:
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - ./target
+  artifacts:
+    paths:
+      - target/*.jar
+  tags:
+    - team4bootcamp
+
+publish-feature:
+  stage: publish
+  variables:
+    TAG: $CI_COMMIT_SHORT_SHA
+  cache:
+    policy: pull
+    key: $CI_COMMIT_REF_SLUG
+    paths:
+      - ./target
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker build -t ${APP_IMAGE}:${TAG} .
+    - docker push ${APP_IMAGE}:${TAG}
+    - docker image rm ${APP_IMAGE}:${TAG}
+    - docker image prune -a --force --filter "until=120h"
+  needs:
+    - build
+  only:
+    - /^feature\/.*$/
+  when: manual
+  tags:
+    - team4bootcamp
+
+publish:
+  extends: publish-feature
+  variables:
+    TAG: $CI_COMMIT_REF_NAME
+  needs:
+    - build
+  only:
+    - test
+    - main
+  when: on_success
+
+
+.deploy_all:
+  stage: deploy
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker pull ${APP_IMAGE}:${TAG}
+    - docker pull ${DB_IMAGE}
+    - docker stack deploy --with-registry-auth -c deploy/docker-compose.yml ${STACK}
+  tags:
+    - team4bootcamp
+
+.deploy_app:
+  stage: deploy
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+  script:
+    - docker pull ${APP_IMAGE}:${TAG}
+    - docker service update --image ${APP_IMAGE}:${TAG} --with-registry-auth --force ${STACK}_example-service
+  tags:
+    - team4bootcamp
+
+deploy-all-test:
+  extends: .deploy_all
+  variables:
+    TAG: test
+    STACK: team4letest
+    DB_PORT: 12402
+    APP_PORT: 12401
+  needs:
+    - publish
+  only:
+    - test
+  when: manual
+
+deploy-app-test:
+  extends: .deploy_app
+  variables:
+    TAG: test
+    STACK: team4test
+    DB_PORT: 12402
+    APP_PORT: 12401
+  needs:
+    - publish
+  only:
+    - test
+  when: manual
+
+deploy-all-prod:
+  extends: .deploy_all
+  variables:
+    TAG: main
+    STACK: team4prod
+    DB_PORT: 12404
+    APP_PORT: 12403
+  needs:
+    - publish
+  only:
+    - main
+  when: manual
+
+deploy-app-prod:
+  extends: .deploy_app
+  variables:
+    TAG: main
+    STACK: team4leprod
+    DB_PORT: 12404
+    APP_PORT: 12403
+  needs:
+    - publish
+  only:
+    - main
+  when: manual
