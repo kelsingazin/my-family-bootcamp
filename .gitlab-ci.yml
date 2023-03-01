@@ -86,7 +86,7 @@ deploy-all-test:
   extends: .deploy_all
   variables:
     TAG: test
-    STACK: team4letest
+    STACK: team4test
     DB_PORT: 12402
     APP_PORT: 12401
   needs:
@@ -125,7 +125,7 @@ deploy-app-prod:
   extends: .deploy_app
   variables:
     TAG: main
-    STACK: team4leprod
+    STACK: team4prod
     DB_PORT: 12404
     APP_PORT: 12403
   needs:
