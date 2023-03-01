@@ -38,5 +38,5 @@ volumes:
     driver: local
 
 networks:
-  example:
+  family:
     attachable: true
