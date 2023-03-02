@@ -1,4 +1,4 @@
-package com.family.myfamily;
+package com.family.myfamily.model;
 
 
 import javax.persistence.*;
