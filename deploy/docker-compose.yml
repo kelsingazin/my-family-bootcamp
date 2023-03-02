@@ -8,7 +8,7 @@ services:
     volumes:
       - /srv/bootcamp/team4/postgresql/data:/var/lib/postgresql/data
     networks:
-      - team4
+      - example
     environment:
       - POSTGRES_PASSWORD=family
       - POSTGRES_USER=family
@@ -19,7 +19,7 @@ services:
     ports:
       - ${APP_PORT}:8080
     networks:
-      - team4
+      - example
     depends_on:
       - postgresql
     deploy:
@@ -38,5 +38,5 @@ volumes:
     driver: local
 
 networks:
-  team4:
+  example:
     attachable: true
