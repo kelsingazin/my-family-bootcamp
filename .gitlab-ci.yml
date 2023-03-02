@@ -78,7 +78,7 @@ publish:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
   script:
     - docker pull ${APP_IMAGE}:${TAG}
-    - docker service update --image ${APP_IMAGE}:${TAG} --with-registry-auth --force ${STACK}_family-service
+    - docker service update --image ${APP_IMAGE}:${TAG} --with-registry-auth --force ${STACK}_team4-service
   tags:
     - team4bootcamp
 
