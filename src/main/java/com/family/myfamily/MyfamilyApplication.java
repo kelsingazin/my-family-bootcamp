@@ -13,9 +13,14 @@ public class MyfamilyApplication {
 		SpringApplication.run(MyfamilyApplication.class, args);
 	}
 
+	TestRepository testRepository;
+	public MyfamilyApplication(TestRepository testRepository) {
+		this.testRepository = testRepository;
+	}
+
 	@GetMapping("/hello")
 	public String hello() {
-		return "Hello";
+		return testRepository.getById(1L).getName();
 	}
 
 }
