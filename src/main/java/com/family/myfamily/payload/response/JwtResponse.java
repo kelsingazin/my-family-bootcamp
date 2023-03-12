@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -15,9 +16,9 @@ public class JwtResponse {
 
     private String token;
     private final String type = "Baerer";
-    private Long id;
+    private UUID id;
     private String phoneNumber;
     private String fullName;
-    private List<String> roles;
+    private String roles;
 
 }

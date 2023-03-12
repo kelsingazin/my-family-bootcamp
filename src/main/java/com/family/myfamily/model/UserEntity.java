@@ -9,22 +9,20 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "roles")
+@Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Role {
+public class UserEntity {
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -33,10 +31,16 @@ public class Role {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "full_name")
+    private String fullName;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    private List<UserEntity> user;
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
+
+    @Column(name = "password")
+    private String password;
+
+    @ManyToOne
+    private Role role;
 }
 
