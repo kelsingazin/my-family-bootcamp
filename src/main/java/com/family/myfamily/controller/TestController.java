@@ -20,7 +20,7 @@ public class TestController {
 
     @GetMapping("/hello")
     @Operation(description = "Тестовый контроллер")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     public String hello() {
         return testRepository.getById(1L).getName();
     }
