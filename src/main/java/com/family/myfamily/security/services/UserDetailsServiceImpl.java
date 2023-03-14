@@ -25,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user != null) {
             return new User(user.getPhoneNumber()
                     , user.getPassword(),
-                    Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName())));
+                    Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
         } else {
             throw new UsernameNotFoundException("Invalid phone number or password");
         }

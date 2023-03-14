@@ -30,17 +30,13 @@ public class UserEntity {
     @Type(type="org.hibernate.type.UUIDCharType")
     @Column(name = "id")
     private UUID id;
-
     @Column(name = "full_name")
     private String fullName;
-
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
-
     @Column(name = "password")
     private String password;
-
-    @ManyToOne
-    private Role role;
+    @Column(name = "role")
+    private String role;
 }
 
