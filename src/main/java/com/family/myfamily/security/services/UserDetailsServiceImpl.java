@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service("userDetails")
@@ -25,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user != null) {
             return new User(user.getPhoneNumber()
                     , user.getPassword(),
-                    Collections.singletonList(new SimpleGrantedAuthority(user.getRole())));
+                    Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())));
         } else {
             throw new UsernameNotFoundException("Invalid phone number or password");
         }
