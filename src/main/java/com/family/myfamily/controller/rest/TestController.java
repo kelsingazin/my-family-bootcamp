@@ -1,4 +1,4 @@
-package com.family.myfamily.controller;
+package com.family.myfamily.controller.rest;
 
 import com.family.myfamily.repository.TestRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
     TestRepository testRepository;
+
     public TestController(TestRepository testRepository) {
         this.testRepository = testRepository;
     }
@@ -24,6 +25,4 @@ public class TestController {
     public String hello() {
         return testRepository.getById(1L).getName();
     }
-
-
 }
