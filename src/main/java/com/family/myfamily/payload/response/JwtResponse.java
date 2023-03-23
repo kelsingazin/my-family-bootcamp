@@ -17,6 +17,7 @@ public class JwtResponse {
     private final String type = "Bearer";
     private UUID id;
     private String phoneNumber;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private String roles;
 }

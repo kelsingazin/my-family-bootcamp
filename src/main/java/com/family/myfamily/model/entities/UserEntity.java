@@ -22,8 +22,11 @@ public class UserEntity {
     @Column(name = "id", columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "full_name")
-    private String fullName;
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;

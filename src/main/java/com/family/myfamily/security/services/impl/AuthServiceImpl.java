@@ -36,7 +36,8 @@ public class AuthServiceImpl implements AuthService {
                 .id(user.getId())
                 .token(jwt)
                 .phoneNumber(user.getPhoneNumber())
-                .fullName(user.getFullName())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .roles(user.getRole().name())
                 .build();
     }
