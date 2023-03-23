@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/signin")
-    public JwtResponse authenticateUser(@RequestParam(name = "phoneNumber") String phoneNumber,
+    public JwtResponse authenticateUser(@Valid @RequestParam(name = "phoneNumber") String phoneNumber,
                                         @RequestParam(name = "password") String password) {
         log.info("GET request to authenticate");
         return authService.authenticateUser(new LoginRequest(phoneNumber, password));

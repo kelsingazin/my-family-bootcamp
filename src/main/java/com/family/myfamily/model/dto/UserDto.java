@@ -12,4 +12,6 @@ public class UserDto {
     public UUID id;
     public String fullName;
     public String phoneNumber;
+    private String password;
+    private String role;
 }

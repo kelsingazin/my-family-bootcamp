@@ -1,13 +1,13 @@
 package com.family.myfamily.security.services;
 
-import com.family.myfamily.model.entities.DocumentEntity;
+import com.family.myfamily.model.dto.DocumentDto;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface DocumentService {
 
-    DocumentEntity save(DocumentEntity documentEntity);
+    DocumentDto save(DocumentDto documentDto);
 
-    List<DocumentEntity> getAllDocuments(UUID id);
+    List<DocumentDto> getAllDocuments(UUID id);
 }

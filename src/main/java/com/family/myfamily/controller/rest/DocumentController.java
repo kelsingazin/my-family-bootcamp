@@ -23,7 +23,6 @@ import java.util.UUID;
 @Slf4j
 public class DocumentController extends BaseController {
 
-    private final ModelMapper modelMapper;
     private final DocumentService documentService;
 
     //Нет интеграций с ГБД ФЛ и тд. Пока получение документов будет реализовано путем
@@ -32,19 +31,15 @@ public class DocumentController extends BaseController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     ResponseEntity<?> addDocument(@RequestBody DocumentDto documentDto) {
         log.info("Post request create a document");
-        DocumentEntity document = modelMapper.map(documentDto, DocumentEntity.class);
-        DocumentDto savedDocument = modelMapper.map(documentService.save(document), DocumentDto.class);
+        DocumentDto savedDocument = documentService.save(documentDto);
         return buildResponse(savedDocument, HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/{userId}")
+    @GetMapping()
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    ResponseEntity<?> getAllDocuments(@PathVariable UUID userId) {
-        List<DocumentEntity> allUserDocuments = documentService.getAllDocuments(userId);
+    ResponseEntity<?> getAllDocuments(@RequestParam UUID userId) {
+        List<DocumentDto> allUserDocuments = documentService.getAllDocuments(userId);
 
-        Type listType = new TypeToken<List<DocumentDto>>() {}.getType();
-        List<DocumentDto> returnDocuments = modelMapper.map(allUserDocuments, listType);
-
-        return buildResponse(returnDocuments, HttpStatus.OK);
+        return buildResponse(allUserDocuments, HttpStatus.OK);
     }
 }
