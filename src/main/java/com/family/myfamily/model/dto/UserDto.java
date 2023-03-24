@@ -13,6 +13,4 @@ public class UserDto {
     public String firstName;
     public String lastName;
     public String phoneNumber;
-    private String password;
-    private String role;
 }

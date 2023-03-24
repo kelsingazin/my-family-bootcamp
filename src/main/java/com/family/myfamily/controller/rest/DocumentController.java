@@ -1,19 +1,12 @@
 package com.family.myfamily.controller.rest;
 
-import com.family.myfamily.controller.BaseController;
 import com.family.myfamily.model.dto.DocumentDto;
-import com.family.myfamily.model.entities.DocumentEntity;
 import com.family.myfamily.security.services.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +14,7 @@ import java.util.UUID;
 @RequestMapping("api/documents")
 @RequiredArgsConstructor
 @Slf4j
-public class DocumentController extends BaseController {
+public class DocumentController {
 
     private final DocumentService documentService;
 
@@ -29,17 +22,13 @@ public class DocumentController extends BaseController {
     //заполнения от АДМИНА
     @PostMapping()
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    ResponseEntity<?> addDocument(@RequestBody DocumentDto documentDto) {
-        log.info("Post request create a document");
-        DocumentDto savedDocument = documentService.save(documentDto);
-        return buildResponse(savedDocument, HttpStatus.CREATED);
+    DocumentDto addDocument(@RequestBody DocumentDto documentDto) {
+        return documentService.save(documentDto);
     }
 
     @GetMapping()
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    ResponseEntity<?> getAllDocuments(@RequestParam UUID userId) {
-        List<DocumentDto> allUserDocuments = documentService.getAllDocuments(userId);
-
-        return buildResponse(allUserDocuments, HttpStatus.OK);
+    List<DocumentDto> getAllDocuments(@RequestParam UUID userId) {
+        return documentService.getAllDocuments(userId);
     }
 }
