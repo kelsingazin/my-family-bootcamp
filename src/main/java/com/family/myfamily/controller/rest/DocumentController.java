@@ -1,6 +1,7 @@
 package com.family.myfamily.controller.rest;
 
 import com.family.myfamily.model.dto.DocumentDto;
+import com.family.myfamily.model.enums.DocumentType;
 import com.family.myfamily.security.services.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +27,16 @@ public class DocumentController {
         return documentService.save(documentDto);
     }
 
-    @GetMapping()
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_USER')")
-    List<DocumentDto> getAllDocuments(@RequestParam UUID userId) {
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    List<DocumentDto> getAllDocuments(@PathVariable UUID userId) {
         return documentService.getAllDocuments(userId);
+    }
+
+    @GetMapping("/{userId}/{documentType}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    DocumentDto getSpecificDocument(@PathVariable UUID userId,
+                                    @PathVariable DocumentType documentType) {
+        return documentService.getSpecificDocument(userId, documentType);
     }
 }

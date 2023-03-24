@@ -62,6 +62,18 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
+    @Override
+    public DocumentDto getSpecificDocument(UUID userId, DocumentType documentType) {
+        List<DocumentDto> documents = getAllDocuments(userId);
+        return documents.stream()
+                .filter(document -> document.getDocumentType().equals(documentType))
+                .findFirst()
+                .orElseThrow(() -> ServiceException.builder()
+                        .message("У клиента отсутствует документ с таким типом")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
+    }
+
     private void setDocumentType(DocumentEntity documentEntity) {
         String passportSeries = documentEntity.getPassportSeries();
         String licenseNumber = documentEntity.getLicenseNumber();
