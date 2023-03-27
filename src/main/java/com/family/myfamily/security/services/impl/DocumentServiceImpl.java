@@ -18,6 +18,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -33,6 +34,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final ModelMapper modelMapper;
     private final IndividualRepository individualRepository;
 
+    @Transactional
     public DocumentDto save(DocumentDto documentDto) {
         IndividualEntity individual = individualRepository.findById(documentDto.getIndividual().getId());
         UserEntity user = userRepository.findById(documentDto.getUser().getId());
