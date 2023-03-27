@@ -14,23 +14,14 @@ public class DocumentDto {
 
     public UUID id;
     public DocumentType documentType;
-    //Only for driver license
-    public String licenseNumber;
-    //Only for passport
-    public String passportSeries;
-    public String name;
-    public String surname;
-    public String middleName;
-    public String iin;
-    public Date birthDate;
-    public String homeCity;
-    public String nationality;
     public Date issueDate;
     public Date expirationDate;
-    public String photo;
-    //Only for driver license
+    public String passportSeries;
+
+    public String licenseNumber;
     public String issuingAuthority;
-    //Only for driver license
     public DriverLicenseCategory driverLicenseCategory;
+
     public UserDto user;
+    public IndividualDto individual;
 }

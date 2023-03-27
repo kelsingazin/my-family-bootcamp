@@ -29,43 +29,19 @@ public class DocumentEntity {
     @Enumerated(EnumType.STRING)
     private DocumentType documentType;
 
-    //Only for driver license
-    @Column(name = "license_number", unique = true)
-    private String licenseNumber;
-
-    //Only for driver license
-    @Column(name = "series", unique = true)
-    private String passportSeries;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
-    private String surname;
-
-    @Column(name = "middle_name")
-    private String middleName;
-
-    @Column(nullable = false, length = 12)
-    private String iin;
-
-    @Column(nullable = false, name = "birth_date")
-    private Date birthDate;
-
-    @Column(nullable = false, name = "home_city")
-    private String homeCity;
-
-    @Column(nullable = false)
-    private String nationality;
-
     @Column(nullable = false, name = "issue_date")
     private Date issueDate;
 
     @Column(nullable = false, name = "expiration_date")
     private Date expirationDate;
 
-    @Column(nullable = false)
-    private String photo;
+    //Only for passport
+    @Column(name = "series", unique = true)
+    private String passportSeries;
+
+    //Only for driver license
+    @Column(name = "license_number", unique = true)
+    private String licenseNumber;
 
     //Only for driver license
     @Column(name = "issuing_authority")
@@ -80,4 +56,9 @@ public class DocumentEntity {
     @JoinColumn(name = "user_id")
     @NotNull(message = "user is required")
     private UserEntity user;
+
+    @ManyToOne
+    @JoinColumn(name = "individual_id")
+    @NotNull(message = "individual is required")
+    private IndividualEntity individual;
 }

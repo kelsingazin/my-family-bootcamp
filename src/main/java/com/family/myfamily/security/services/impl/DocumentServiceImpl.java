@@ -3,13 +3,15 @@ package com.family.myfamily.security.services.impl;
 import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.model.dto.DocumentDto;
 import com.family.myfamily.model.entities.DocumentEntity;
+import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.model.enums.DocumentType;
 import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.repository.DocumentRepository;
+import com.family.myfamily.repository.IndividualRepository;
 import com.family.myfamily.repository.UserRepository;
 import com.family.myfamily.security.services.DocumentService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -22,22 +24,29 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final IndividualRepository individualRepository;
 
     public DocumentDto save(DocumentDto documentDto) {
-        log.info("Сохранение документа пользователя {} в системе", documentDto.getIin());
+        IndividualEntity individual = individualRepository.findById(documentDto.getIndividual().getId());
+        UserEntity user = userRepository.findById(documentDto.getUser().getId());
+        log.info("Сохранение документа пользователя {} в системе", individual.getIin());
         DocumentEntity document = modelMapper.map(documentDto, DocumentEntity.class);
+
+        document.setIndividual(individual);
+        document.setUser(user);
         setDocumentType(document);
         checkDocumentExistence(document);
 
         DocumentEntity savedDocument = documentRepository.save(document);
-        log.info("Документ пользователя {} сохранен", savedDocument.getIin());
+
+        log.info("Документ пользователя {} сохранен", individual.getIin());
         return modelMapper.map(savedDocument, DocumentDto.class);
     }
 
