@@ -1,6 +1,6 @@
 package com.family.myfamily.security.services;
 
-import com.family.myfamily.model.UserEntity;
+import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

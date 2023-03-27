@@ -20,9 +20,4 @@ public class SwaggerConfig {
                 .description("reference")
                 .version("1.0");
     }
-
-
-
 }
-
-

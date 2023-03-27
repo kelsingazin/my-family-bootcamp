@@ -10,9 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SecurityScheme(name = "myFamily", scheme = "bearer", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
 public class MyfamilyApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MyfamilyApplication.class, args);
-	}
-
-
+    public static void main(String[] args) {
+        SpringApplication.run(MyfamilyApplication.class, args);
+    }
 }

@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -15,10 +14,10 @@ import java.util.UUID;
 public class JwtResponse {
 
     private String token;
-    private final String type = "Baerer";
+    private final String type = "Bearer";
     private UUID id;
     private String phoneNumber;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private String roles;
-
 }
