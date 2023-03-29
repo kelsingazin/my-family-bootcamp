@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterCouple {
+public class ConfirmMarriage {
 
-    private String userIin;
-    private String partnerIin;
-    private String city;
-    private String office;
-    private Boolean isUserPay;
+    private UUID userId;
+    private UUID governmentRequestId;
+    private Boolean confirm;
 }
