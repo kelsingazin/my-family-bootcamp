@@ -1,8 +1,10 @@
 package com.family.myfamily.security.services.impl;
 
 import com.family.myfamily.controller.exceptions.ServiceException;
+import com.family.myfamily.model.dto.DocumentDto;
+import com.family.myfamily.model.dto.GovernmentRequestDto;
+import com.family.myfamily.model.entities.DocumentEntity;
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
-import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.model.enums.RequestType;
 import com.family.myfamily.payload.codes.ErrorCode;
@@ -12,21 +14,31 @@ import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.repository.GovernmentRequestRepository;
 import com.family.myfamily.repository.IndividualRepository;
 import com.family.myfamily.repository.UserRepository;
+import com.family.myfamily.security.services.GovernmentRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GovernmentRequestServiceImpl {
-    private final UserRepository userRepository;
+public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
+    private final UserRepository userRepository;
     private final GovernmentRequestRepository repository;
     private final IndividualRepository individualRepository;
+    private final ModelMapper modelMapper;
 
+    @Override
     public Check registerCouple(RegisterCouple request){
 
         UserEntity user = individualRepository.findByIin(request.getUserIin()).getUser();
@@ -75,6 +87,7 @@ public class GovernmentRequestServiceImpl {
         }
     }
 
+    @Override
     public Check confirmMarriage(ConfirmMarriage request){
 
         GovernmentRequestEntity governmentRequest = repository.findById(request.getGovernmentRequestId())
@@ -117,6 +130,28 @@ public class GovernmentRequestServiceImpl {
         return Check.builder()
                 .date(new Date())
                 .build();
+    }
+
+    public List<GovernmentRequestDto> getAllRequests(UUID id){
+        log.info("Получение всех запросов пользователя по userId {}", id);
+
+        UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserEntity currentUser = userRepository.findById(id);
+
+        if (contextUser.getPassword().equals(currentUser.getPassword())) {
+            List<GovernmentRequestEntity> list = repository.findAllByRequestUser(currentUser);
+            Type listType = new TypeToken<List<GovernmentRequestDto>>() {
+            }.getType();
+
+            return modelMapper.map(list, listType);
+        } else {
+            throw ServiceException
+                    .builder()
+                    .message("Клиент может иметь доступ только к своим запросам")
+                    .errorCode(ErrorCode.AUTH_ERROR)
+                    .build();
+        }
+
     }
 
 }
