@@ -2,7 +2,7 @@ package com.family.myfamily.controller.rest;
 
 import com.family.myfamily.model.dto.DocumentDto;
 import com.family.myfamily.model.enums.DocumentType;
-import com.family.myfamily.security.services.DocumentService;
+import com.family.myfamily.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;

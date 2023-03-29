@@ -1,14 +1,13 @@
 package com.family.myfamily.controller.rest;
 
 import com.family.myfamily.model.dto.IndividualDto;
-import com.family.myfamily.security.services.IndividualService;
+import com.family.myfamily.service.IndividualService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/individuals")
@@ -26,4 +25,9 @@ public class IndividualController {
         return individualService.save(individualDto);
     }
 
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    IndividualDto getIndividual(@PathVariable UUID userId) {
+        return individualService.getIndividual(userId);
+    }
 }

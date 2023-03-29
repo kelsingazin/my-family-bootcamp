@@ -1,4 +1,4 @@
-package com.family.myfamily.security.services.impl;
+package com.family.myfamily.service.impl;
 
 import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.model.dto.DocumentDto;
@@ -10,7 +10,7 @@ import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.repository.DocumentRepository;
 import com.family.myfamily.repository.IndividualRepository;
 import com.family.myfamily.repository.UserRepository;
-import com.family.myfamily.security.services.DocumentService;
+import com.family.myfamily.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -36,8 +36,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Transactional
     public DocumentDto save(DocumentDto documentDto) {
-        IndividualEntity individual = individualRepository.findById(documentDto.getIndividual().getId());
-        UserEntity user = userRepository.findById(documentDto.getUser().getId());
+        IndividualEntity individual = individualRepository.findById(documentDto.getIndividual().getId()).get();
+        UserEntity user = userRepository.findById(documentDto.getUser().getId()).get();
         log.info("Сохранение документа пользователя {} в системе", individual.getIin());
         DocumentEntity document = modelMapper.map(documentDto, DocumentEntity.class);
 
@@ -56,7 +56,7 @@ public class DocumentServiceImpl implements DocumentService {
     public List<DocumentDto> getAllDocuments(UUID userId) {
         log.info("Получение всех документов пользователя по userId");
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserEntity currentUser = userRepository.findById(userId);
+        UserEntity currentUser = userRepository.findById(userId).get();
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
             List<DocumentEntity> documents = documentRepository.findAllByUser_Id(userId);
 
@@ -65,6 +65,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             return modelMapper.map(documents, listType);
         } else {
+            log.error("Клиент может иметь доступ только к своим документам");
             throw ServiceException
                     .builder()
                     .message("Клиент может иметь доступ только к своим документам")
