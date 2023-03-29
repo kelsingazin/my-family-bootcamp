@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public Check registerCouple(RegisterCouple request){
 
         UserEntity user = individualRepository.findByIin(request.getUserIin()).getUser();
@@ -87,6 +89,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         }
     }
 
+    @Transactional
     @Override
     public Check confirmMarriage(ConfirmMarriage request){
 
@@ -132,6 +135,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .build();
     }
 
+    @Override
     public List<GovernmentRequestDto> getAllRequests(UUID id){
         log.info("Получение всех запросов пользователя по userId {}", id);
 
