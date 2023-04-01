@@ -11,9 +11,9 @@ import java.util.UUID;
 @Repository
 public interface CardRepository extends JpaRepository<CardEntity, UUID> {
 
-    Optional<CardEntity> findByIdAndDeletedAtNull(UUID uuid);
+    Optional<CardEntity> findByIdAndDeletedIsFalse(UUID uuid);
 
-    List<CardEntity> findAllByUser_IdAndDeletedAtNull(UUID userId);
+    List<CardEntity> findAllByUser_IdAndDeletedIsFalse(UUID userId);
 
     void delete(CardEntity entity);
 }

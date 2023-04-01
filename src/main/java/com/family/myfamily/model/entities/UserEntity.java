@@ -40,7 +40,9 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<CardEntity> cards;
 }

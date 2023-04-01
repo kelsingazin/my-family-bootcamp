@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -41,11 +40,16 @@ public class CardEntity {
     @Column(name = "security_code")
     private Integer securityCode;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "deleted_at")
-    private Date deletedAt;
+    @Column(name = "is_deleted")
+    private Boolean deleted;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference
     private UserEntity user;
+
+    @PrePersist
+    void setActive() {
+        this.deleted = Boolean.FALSE;
+    }
 }

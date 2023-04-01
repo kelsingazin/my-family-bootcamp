@@ -36,7 +36,7 @@ public class CardServiceImpl implements CardService {
     private final UserRepository userRepository;
 
     @Override
-    public CardResponse createCard(CardDto cardDto) throws ParseException {
+    public CardResponse createCard(CardDto cardDto) {
         CardEntity card = modelMapper.map(cardDto, CardEntity.class);
 
         checkCardExistence(card);
@@ -52,7 +52,7 @@ public class CardServiceImpl implements CardService {
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity currentUser = userRepository.findById(userId).get();
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
-            List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedAtNull(userId);
+            List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedIsFalse(userId);
 
             Type listType = new TypeToken<List<CardResponse>>() {
             }.getType();
@@ -73,7 +73,7 @@ public class CardServiceImpl implements CardService {
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity currentUser = userRepository.findById(userId).get();
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
-            List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedAtNull(userId);
+            List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedIsFalse(userId);
             Optional<CardEntity> cardEntity = cardEntityList.stream()
                     .filter(card -> card.getId().equals(cardId))
                     .findFirst();
@@ -99,10 +99,10 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public HttpStatus deleteCardByCardId(UUID cardId) {
-        Optional<CardEntity> optionalCardEntity = cardRepository.findByIdAndDeletedAtNull(cardId);
+        Optional<CardEntity> optionalCardEntity = cardRepository.findByIdAndDeletedIsFalse(cardId);
         if (optionalCardEntity.isPresent()) {
             CardEntity card = optionalCardEntity.get();
-            card.setDeletedAt(new Date());
+            card.setDeleted(Boolean.TRUE);
             cardRepository.save(card);
             return HttpStatus.OK;
         } else {
@@ -118,7 +118,7 @@ public class CardServiceImpl implements CardService {
     private void checkCardExistence(CardEntity card) {
         log.info("Проверка на существование карты в системе");
         if (card.getId() != null) {
-            cardRepository.findByIdAndDeletedAtNull(card.getId()).ifPresent(cardDb -> {
+            cardRepository.findByIdAndDeletedIsFalse(card.getId()).ifPresent(cardDb -> {
                         throw ServiceException.builder()
                                 .message("Карта с таким номером уже существует")
                                 .errorCode(ErrorCode.ALREADY_EXISTS)
@@ -128,10 +128,19 @@ public class CardServiceImpl implements CardService {
         }
     }
 
-    private void checkCardExpDate(CardEntity card) throws ParseException {
+    private void checkCardExpDate(CardEntity card) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/yy");
         simpleDateFormat.setLenient(false);
-        Date expiry = simpleDateFormat.parse(card.getExpirationDate());
+        Date expiry;
+        try {
+            expiry = simpleDateFormat.parse(card.getExpirationDate());
+        } catch (ParseException e) {
+            throw ServiceException
+                    .builder()
+                    .errorCode(ErrorCode.EXPIRED_CARD)
+                    .message("Срок действия карты должен быть в формате MM/yy")
+                    .build();
+        }
         if (expiry.before(new Date())) {
             throw ServiceException
                     .builder()

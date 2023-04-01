@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +22,7 @@ public class CardController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public CardResponse createCard(@RequestBody CardDto cardDto) throws ParseException {
+    public CardResponse createCard(@RequestBody CardDto cardDto) {
         return cardService.createCard(cardDto);
     }
 
@@ -33,16 +32,16 @@ public class CardController {
         return cardService.getCards(userId);
     }
 
-    @GetMapping("/{userId}/{cardId}")
+    @GetMapping("/user/{userId}/card/{cardId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public CardResponse getCardById(@PathVariable UUID userId,
-                                    @PathVariable UUID cardId) {
+    public CardResponse getCard(@PathVariable UUID userId,
+                                @PathVariable UUID cardId) {
         return cardService.getCardByCardId(userId, cardId);
     }
 
     @DeleteMapping("/{cardId}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public HttpStatus deleteCardById(@PathVariable UUID cardId) {
+    public HttpStatus deleteCard(@PathVariable UUID cardId) {
         return cardService.deleteCardByCardId(cardId);
     }
 }
