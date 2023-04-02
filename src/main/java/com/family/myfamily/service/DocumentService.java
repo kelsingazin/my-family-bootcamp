@@ -1,4 +1,4 @@
-package com.family.myfamily.security.services;
+package com.family.myfamily.service;
 
 import com.family.myfamily.model.dto.DocumentDto;
 import com.family.myfamily.model.enums.DocumentType;

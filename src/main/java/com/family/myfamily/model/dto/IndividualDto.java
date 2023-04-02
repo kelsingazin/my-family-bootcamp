@@ -1,5 +1,6 @@
 package com.family.myfamily.model.dto;
 
+import com.family.myfamily.model.enums.MaritalStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,4 +20,6 @@ public class IndividualDto {
     public String homeCity;
     public String nationality;
     public String photo;
+    public String phoneNumber;
+    public MaritalStatus maritalStatus;
 }
