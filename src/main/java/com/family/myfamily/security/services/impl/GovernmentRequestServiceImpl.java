@@ -1,9 +1,7 @@
 package com.family.myfamily.security.services.impl;
 
 import com.family.myfamily.controller.exceptions.ServiceException;
-import com.family.myfamily.model.dto.DocumentDto;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
-import com.family.myfamily.model.entities.DocumentEntity;
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.model.enums.RequestType;
@@ -35,9 +33,23 @@ import java.util.UUID;
 public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
     private final UserRepository userRepository;
-    private final GovernmentRequestRepository repository;
+    private final GovernmentRequestRepository governmentRequestRepository;
     private final IndividualRepository individualRepository;
     private final ModelMapper modelMapper;
+
+    private void payForMarriage(UserEntity user){
+        Double curBalance = user.getBalance();
+        if (curBalance - 5000 < 0) {
+            log.info("недостаточно средств для услуги");
+            throw ServiceException.builder()
+                    .message("недостаточно средств для услуги")
+                    .errorCode(ErrorCode.NOT_ENOUGH_MONEY)
+                    .build();
+        }
+        curBalance -= 5000;
+        user.setBalance(curBalance);
+        userRepository.save(user);
+    }
 
     @Override
     @Transactional
@@ -46,46 +58,30 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         UserEntity user = individualRepository.findByIin(request.getUserIin()).getUser();
         UserEntity partner = individualRepository.findByIin(request.getPartnerIin()).getUser();
 
+        GovernmentRequestEntity governmentRequest = GovernmentRequestEntity.builder()
+                .date(new Date())
+                .office(request.getOffice())
+                .city(request.getCity())
+                .isPartnerPaid(request.getIsUserPay())
+                .requestUser(user)
+                .responseUser(partner)
+                .type(RequestType.MARRIAGE)
+                .status("waiting")
+                .build();
+
         if (request.getIsUserPay()){
-            Double curBalance = user.getBalance();
-            if (curBalance - 5000 < 0) {
-                log.info("недостаточно средств для услуги");
-                throw ServiceException.builder()
-                        .message("недостаточно средств для услуги")
-                        .errorCode(ErrorCode.NOT_ENOUGH_MONEY)
-                        .build();
-            }
-            curBalance -= 5000;
-            user.setBalance(curBalance);
-            userRepository.save(user);
-            repository.save(GovernmentRequestEntity.builder()
-                    .date(new Date())
-                    .office(request.getOffice())
-                    .city(request.getCity())
-                    .isPartnerPaid(true)
-                    .requestUser(user)
-                    .responseUser(partner)
-                    .type(RequestType.MARRIAGE)
-                    .status("waiting")
-                    .build());
+            payForMarriage(user);
+            governmentRequestRepository.save(governmentRequest);
             return Check.builder()
                     .sum(5000.0)
                     .date(new Date())
                     .build();
         } else {
-            repository.save(GovernmentRequestEntity.builder()
-                    .date(new Date())
-                    .office(request.getOffice())
-                    .city(request.getCity())
-                    .isPartnerPaid(false)
-                    .requestUser(user)
-                    .responseUser(partner)
-                    .type(RequestType.MARRIAGE)
-                    .status("waiting")
-                    .build());
+            governmentRequestRepository.save(governmentRequest);
             return Check.builder()
                     .date(new Date())
                     .build();
+
         }
     }
 
@@ -93,33 +89,25 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     @Override
     public Check confirmMarriage(ConfirmMarriage request){
 
-        GovernmentRequestEntity governmentRequest = repository.findById(request.getGovernmentRequestId())
+        GovernmentRequestEntity governmentRequest = governmentRequestRepository.findById(request.getGovernmentRequestId())
                 .orElseThrow(()->ServiceException.builder()
                         .message("нет запроса с таким идентификационным номером")
                         .errorCode(ErrorCode.RESOURCE_NOT_FOUND)
                         .build());
+
         UserEntity user = userRepository.findById(request.getUserId());
 
         if (request.getConfirm()){
 
             if (governmentRequest.getIsPartnerPaid()) {
+
                 governmentRequest.setStatus("processed");
-                repository.save(governmentRequest);
+                governmentRequestRepository.save(governmentRequest);
 
             } else {
-                Double balance = user.getBalance();
-                if (balance - 5000 < 0) {
-                    log.info("недостаточно средств для услуги");
-                    throw ServiceException.builder()
-                            .message("недостаточно средств для услуги")
-                            .errorCode(ErrorCode.NOT_ENOUGH_MONEY)
-                            .build();
-                }
-                balance-=5000;
-                user.setBalance(balance);
-                userRepository.save(user);
+                payForMarriage(user);
                 governmentRequest.setStatus("processed");
-                repository.save(governmentRequest);
+                governmentRequestRepository.save(governmentRequest);
                 return Check.builder()
                         .sum(5000.0)
                         .date(new Date())
@@ -128,7 +116,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
         } else {
             governmentRequest.setStatus("rejected");
-            repository.save(governmentRequest);
+            governmentRequestRepository.save(governmentRequest);
         }
         return Check.builder()
                 .date(new Date())
@@ -143,7 +131,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         UserEntity currentUser = userRepository.findById(id);
 
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
-            List<GovernmentRequestEntity> list = repository.findAllByRequestUser(currentUser);
+            List<GovernmentRequestEntity> list = governmentRequestRepository.findAllByRequestUser(currentUser);
             Type listType = new TypeToken<List<GovernmentRequestDto>>() {
             }.getType();
 
