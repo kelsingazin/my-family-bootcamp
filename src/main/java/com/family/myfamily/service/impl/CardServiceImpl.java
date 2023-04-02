@@ -50,7 +50,12 @@ public class CardServiceImpl implements CardService {
     public List<CardResponse> getCards(UUID userId) {
         log.info("Получение всех карт пользователя по userId");
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserEntity currentUser = userRepository.findById(userId).get();
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+        UserEntity currentUser = optionalUserEntity.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Пользователь с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
             List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedIsFalse(userId);
 
@@ -71,7 +76,12 @@ public class CardServiceImpl implements CardService {
     public CardResponse getCardByCardId(UUID userId, UUID cardId) {
         log.info("Получение карты пользователя по userId и cardId");
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserEntity currentUser = userRepository.findById(userId).get();
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+        UserEntity currentUser = optionalUserEntity.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Пользователь с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
             List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedIsFalse(userId);
             Optional<CardEntity> cardEntity = cardEntityList.stream()

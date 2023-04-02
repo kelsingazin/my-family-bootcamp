@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -45,7 +46,12 @@ public class IndividualServiceImpl implements IndividualService {
 
     @Override
     public IndividualDto getIndividual(UUID userId) {
-        UserEntity userEntity = userRepository.findById(userId).get();
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+        UserEntity userEntity = optionalUserEntity.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Пользователь с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
         IndividualEntity individual = individualRepository.findByPhoneNumber(userEntity.getPhoneNumber());
         if (Objects.isNull(individual)) {
             throw ServiceException.builder()

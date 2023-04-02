@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,8 +37,18 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Transactional
     public DocumentDto save(DocumentDto documentDto) {
-        IndividualEntity individual = individualRepository.findById(documentDto.getIndividual().getId()).get();
-        UserEntity user = userRepository.findById(documentDto.getUser().getId()).get();
+        Optional<IndividualEntity> optionalIndividualEntity = individualRepository.findById(documentDto.getIndividual().getId());
+        IndividualEntity individual = optionalIndividualEntity.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Individual с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(documentDto.getUser().getId());
+        UserEntity user = optionalUserEntity.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Пользователь с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
         log.info("Сохранение документа пользователя {} в системе", individual.getIin());
         DocumentEntity document = modelMapper.map(documentDto, DocumentEntity.class);
 
@@ -56,7 +67,12 @@ public class DocumentServiceImpl implements DocumentService {
     public List<DocumentDto> getAllDocuments(UUID userId) {
         log.info("Получение всех документов пользователя по userId");
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserEntity currentUser = userRepository.findById(userId).get();
+        Optional<UserEntity> optionalUserEntity = userRepository.findById(userId);
+        UserEntity currentUser = optionalUserEntity.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Пользователь с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
         if (contextUser.getPassword().equals(currentUser.getPassword())) {
             List<DocumentEntity> documents = documentRepository.findAllByUser_Id(userId);
 
