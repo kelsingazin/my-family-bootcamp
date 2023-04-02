@@ -14,4 +14,5 @@ public class ConfirmMarriage {
     private UUID userId;
     private UUID governmentRequestId;
     private Boolean confirm;
+    private String cardNumber;
 }

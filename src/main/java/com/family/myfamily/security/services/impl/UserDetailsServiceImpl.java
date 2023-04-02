@@ -1,4 +1,4 @@
-package com.family.myfamily.security.services;
+package com.family.myfamily.security.services.impl;
 
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.repository.UserRepository;

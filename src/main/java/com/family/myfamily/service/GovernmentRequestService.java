@@ -1,4 +1,4 @@
-package com.family.myfamily.security.services;
+package com.family.myfamily.service;
 
 import com.family.myfamily.model.dto.GovernmentRequestDto;
 import com.family.myfamily.payload.request.ConfirmMarriage;

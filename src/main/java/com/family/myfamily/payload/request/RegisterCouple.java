@@ -14,4 +14,5 @@ public class RegisterCouple {
     private String city;
     private String office;
     private Boolean isUserPay;
+    private String cardNumber;
 }

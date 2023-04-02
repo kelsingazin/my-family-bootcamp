@@ -4,7 +4,7 @@ import com.family.myfamily.model.dto.GovernmentRequestDto;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
-import com.family.myfamily.security.services.GovernmentRequestService;
+import com.family.myfamily.service.GovernmentRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
