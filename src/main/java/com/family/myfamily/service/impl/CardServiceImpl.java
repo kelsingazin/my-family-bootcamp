@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -56,7 +53,7 @@ public class CardServiceImpl implements CardService {
                         .message("Пользователь с таким id не существует")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
-        if (contextUser.getPassword().equals(currentUser.getPassword())) {
+        if (Objects.equals(contextUser.getPassword(), currentUser.getPassword())) {
             List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedIsFalse(userId);
 
             Type listType = new TypeToken<List<CardResponse>>() {
@@ -82,7 +79,7 @@ public class CardServiceImpl implements CardService {
                         .message("Пользователь с таким id не существует")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
-        if (contextUser.getPassword().equals(currentUser.getPassword())) {
+        if (Objects.equals(contextUser.getPassword(), currentUser.getPassword())) {
             List<CardEntity> cardEntityList = cardRepository.findAllByUser_IdAndDeletedIsFalse(userId);
             Optional<CardEntity> cardEntity = cardEntityList.stream()
                     .filter(card -> card.getId().equals(cardId))

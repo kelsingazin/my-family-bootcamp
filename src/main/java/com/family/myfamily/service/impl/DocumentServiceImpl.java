@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,7 +74,7 @@ public class DocumentServiceImpl implements DocumentService {
                         .message("Пользователь с таким id не существует")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
-        if (contextUser.getPassword().equals(currentUser.getPassword())) {
+        if (Objects.equals(contextUser.getPassword(), currentUser.getPassword())) {
             List<DocumentEntity> documents = documentRepository.findAllByUser_Id(userId);
 
             Type listType = new TypeToken<List<DocumentDto>>() {
