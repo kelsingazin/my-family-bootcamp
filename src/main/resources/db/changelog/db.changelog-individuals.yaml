@@ -28,6 +28,7 @@ databaseChangeLog:
                   type: varchar (12)
                   constraints:
                     nullable: false
+                    unique: true
               - column:
                   name: marital_status
                   type: varchar(255)
