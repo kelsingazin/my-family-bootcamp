@@ -1,11 +1,21 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/db.changelog-user.yaml
+      file: db/changelog/001_create_table_users.sql
   - include:
-      file: db/changelog/db.changelog-individuals.yaml
+      file: db/changelog/002_create_table_individuals.sql
   - include:
-      file: db/changelog/db.changelog-requests.yaml
+      file: db/changelog/003_create_table_requests.sql
   - include:
-      file: db/changelog/db.changelog-documents.yaml
+      file: db/changelog/004_create_table_documents.sql
   - include:
-      file: db/changelog/db.changelog-credit_cards.yaml
+      file: db/changelog/005_create_table_credit-cards.sql
+  - include:
+      file: db/changelog/006_add_constraints_users.sql
+  - include:
+      file: db/changelog/007_add_constraints_individuals.sql
+  - include:
+      file: db/changelog/008_add_constraints_documents.sql
+  - include:
+      file: db/changelog/009_add_constraints_requests.sql
+  - include:
+      file: db/changelog/010_add_constraints_credit-cards.sql

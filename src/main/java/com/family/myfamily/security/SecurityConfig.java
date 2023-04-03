@@ -61,7 +61,6 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/hello").permitAll()
                 .antMatchers(AUTH_WHITE_LIST).permitAll()
                 .anyRequest().authenticated();
 
