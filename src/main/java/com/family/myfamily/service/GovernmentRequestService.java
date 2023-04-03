@@ -10,6 +10,8 @@ import java.util.UUID;
 
 public interface GovernmentRequestService {
     Check registerCouple(RegisterCouple request);
+
     Check confirmMarriage(ConfirmMarriage request);
+
     List<GovernmentRequestDto> getAllRequests(UUID id);
 }

@@ -24,16 +24,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsServiceImpl userDetailsService;
-    private final AuthEntryPointJwt unauthorizedHandler;
-    private final AuthTokenFilter authenticationJwtTokenFilter;
-
     private static final String[] AUTH_WHITE_LIST = {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/v2/api-docs/**",
             "/swagger-resources/**"
     };
+    private final UserDetailsServiceImpl userDetailsService;
+    private final AuthEntryPointJwt unauthorizedHandler;
+    private final AuthTokenFilter authenticationJwtTokenFilter;
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {

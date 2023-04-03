@@ -30,7 +30,6 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +42,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     private final ModelMapper modelMapper;
     private final CardRepository cardRepository;
 
-    private void payForMarriage(UserEntity user, String cardNumber){
+    private void payForMarriage(UserEntity user, String cardNumber) {
         CardEntity card = user.getCards().stream()
                 .filter(cardEntity -> cardEntity.getNumber().equals(cardNumber))
                 .toList()
@@ -60,9 +59,9 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         cardRepository.save(card);
     }
 
-    private void checkMarriage(IndividualEntity user, IndividualEntity partner){
+    private void checkMarriage(IndividualEntity user, IndividualEntity partner) {
         if (user.getMaritalStatus().equals(MaritalStatus.MARRIED)
-                || partner.getMaritalStatus().equals(MaritalStatus.MARRIED)){
+                || partner.getMaritalStatus().equals(MaritalStatus.MARRIED)) {
             throw ServiceException.builder()
                     .message("недостаточно средств для услуги")
                     .errorCode(ErrorCode.ALREADY_MARRIED)
@@ -72,7 +71,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
     @Override
     @Transactional
-    public Check registerCouple(RegisterCouple request){
+    public Check registerCouple(RegisterCouple request) {
 
         IndividualEntity userIndividual = individualRepository.findByIin(request.getUserIin());
         IndividualEntity partnerIndividual = individualRepository.findByIin(request.getPartnerIin());
@@ -93,7 +92,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .status("waiting")
                 .build();
 
-        if (request.getIsUserPay()){
+        if (request.getIsUserPay()) {
             payForMarriage(user, request.getCardNumber());
             governmentRequestRepository.save(governmentRequest);
             return Check.builder()
@@ -111,22 +110,22 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
     @Transactional
     @Override
-    public Check confirmMarriage(ConfirmMarriage request){
+    public Check confirmMarriage(ConfirmMarriage request) {
 
         GovernmentRequestEntity governmentRequest = governmentRequestRepository.findById(request.getGovernmentRequestId())
-                .orElseThrow(()->ServiceException.builder()
+                .orElseThrow(() -> ServiceException.builder()
                         .message("нет запроса с таким идентификационным номером")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
 
         UserEntity user = userRepository.findById(request.getUserId()).orElseThrow(
-                ()->ServiceException.builder()
+                () -> ServiceException.builder()
                         .message("пользователь с таким id не существует")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build()
         );
 
-        if (request.getConfirm()){
+        if (request.getConfirm()) {
 
             if (governmentRequest.getIsPartnerPaid()) {
 
@@ -153,12 +152,12 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     }
 
     @Override
-    public List<GovernmentRequestDto> getAllRequests(UUID id){
+    public List<GovernmentRequestDto> getAllRequests(UUID id) {
         log.info("Получение всех запросов пользователя по userId {}", id);
 
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity currentUser = userRepository.findById(id).orElseThrow(
-                ()->ServiceException.builder()
+                () -> ServiceException.builder()
                         .message("нет запроса с таким идентификационным номером")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build()

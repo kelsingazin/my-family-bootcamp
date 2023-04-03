@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 public class JwtResponse {
 
-    private String token;
     private final String type = "Bearer";
+    private String token;
     private UUID id;
 }
