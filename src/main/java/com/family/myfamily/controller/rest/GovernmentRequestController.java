@@ -25,17 +25,19 @@ import java.util.UUID;
 public class GovernmentRequestController {
 
     private final GovernmentRequestService service;
+
     @PostMapping("/register-couple")
-    public Check registerCouple(@RequestBody RegisterCouple request){
+    public Check registerCouple(@RequestBody RegisterCouple request) {
         return service.registerCouple(request);
     }
-    @PutMapping ("/register-couple")
-    public Check confirmMarriage(@RequestBody ConfirmMarriage request){
+
+    @PutMapping("/register-couple")
+    public Check confirmMarriage(@RequestBody ConfirmMarriage request) {
         return service.confirmMarriage(request);
     }
 
     @GetMapping("/{id}")
-    public List<GovernmentRequestDto> getAllRequests(@PathVariable(name = "id") UUID id){
+    public List<GovernmentRequestDto> getAllRequests(@PathVariable(name = "id") UUID id) {
         return service.getAllRequests(id);
     }
 
