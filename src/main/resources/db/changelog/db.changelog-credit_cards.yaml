@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: fufn
+      changes:
+        - createTable:
+            tableName: credit_cards
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: alias
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: float8
+              - column:
+                  name: card_holder_name
+                  type: varchar(255)
+              - column:
+                  name: is_deleted
+                  type: boolean
+              - column:
+                  name: expiration_date
+                  type: timestamp
+              - column:
+                  name: number
+                  type: varchar(255)
+              - column:
+                  name: security_code
+                  type: int4
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 2
+      author: fufn
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: credit_cards
+            baseTableSchemaName: public
+            constraintName: fk_credit_cards_users
+            deferrable: true
+            initiallyDeferred: true
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            referencedTableSchemaName: public
+            validate: true

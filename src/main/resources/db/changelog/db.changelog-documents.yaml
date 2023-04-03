@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: fufn
+      changes:
+        - createTable:
+            tableName: documents
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: driver_license_category
+                  type: varchar(255)
+              - column:
+                  name: expiration_date
+                  type: timestamp
+              - column:
+                  name: issue_date
+                  type: timestamp
+              - column:
+                  name: issuing_authority
+                  type: varchar(255)
+              - column:
+                  name: license_number
+                  type: varchar(255)
+              - column:
+                  name: series
+                  type: varchar(255)
+              - column:
+                  name: individual_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 2
+      author: fufn
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: individual_id
+            baseTableName: documents
+            baseTableSchemaName: public
+            constraintName: fk_documents_individuals
+            deferrable: true
+            initiallyDeferred: true
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: individuals
+            referencedTableSchemaName: public
+            validate: true
+  - changeSet:
+      id: 3
+      author: fufn
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: documents
+            baseTableSchemaName: public
+            constraintName: fk_documents_users
+            deferrable: true
+            initiallyDeferred: true
+            onDelete: CASCADE
+            onUpdate: CASCADE
+            referencedColumnNames: id
+            referencedTableName: users
+            referencedTableSchemaName: public
+            validate: true

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/db.changelog-user.yaml
+  - include:
+      file: db/changelog/db.changelog-individuals.yaml
+  - include:
+      file: db/changelog/db.changelog-requests.yaml
+  - include:
+      file: db/changelog/db.changelog-documents.yaml
+  - include:
+      file: db/changelog/db.changelog-credit_cards.yaml
