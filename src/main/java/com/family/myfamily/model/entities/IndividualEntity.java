@@ -53,7 +53,4 @@ public class IndividualEntity {
     @Column(name = "marital_status")
     @Enumerated(EnumType.STRING)
     private MaritalStatus maritalStatus;
-
-    @OneToOne
-    private UserEntity user;
 }

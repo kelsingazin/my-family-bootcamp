@@ -45,7 +45,4 @@ public class UserEntity {
             fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<CardEntity> cards;
-
-    @OneToOne
-    private IndividualEntity individual;
 }

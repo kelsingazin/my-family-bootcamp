@@ -74,10 +74,13 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     @Transactional
     public Check registerCouple(RegisterCouple request){
 
-        UserEntity user = individualRepository.findByIin(request.getUserIin()).getUser();
-        UserEntity partner = individualRepository.findByIin(request.getPartnerIin()).getUser();
+        IndividualEntity userIndividual = individualRepository.findByIin(request.getUserIin());
+        IndividualEntity partnerIndividual = individualRepository.findByIin(request.getPartnerIin());
 
-        checkMarriage(user.getIndividual(), partner.getIndividual());
+        UserEntity user = userRepository.findByPhoneNumber(userIndividual.getPhoneNumber());
+        UserEntity partner = userRepository.findByPhoneNumber(partnerIndividual.getPhoneNumber());
+
+        checkMarriage(userIndividual, partnerIndividual);
 
         GovernmentRequestEntity governmentRequest = GovernmentRequestEntity.builder()
                 .date(new Date())
