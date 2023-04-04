@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/009_add_constraints_requests.sql
   - include:
       file: db/changelog/010_add_constraints_credit-cards.sql
+  - include:
+      file: db/changelog/011_insert_table_users.sql
