@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -13,6 +14,7 @@ import java.util.Date;
 @Builder
 public class Check {
 
+    private UUID requestId;
     private Double sum;
     private Date date;
 
