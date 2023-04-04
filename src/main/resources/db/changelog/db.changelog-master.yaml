@@ -21,3 +21,5 @@ databaseChangeLog:
       file: db/changelog/010_add_constraints_credit-cards.sql
   - include:
       file: db/changelog/011_insert_table_users.sql
+  - include:
+      file: db/changelog/012_add_column_gender_individuals.sql

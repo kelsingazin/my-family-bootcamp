@@ -1,6 +1,7 @@
 package com.family.myfamily.model.entities;
 
 import com.family.myfamily.model.enums.MaritalStatus;
+import com.family.myfamily.model.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -59,4 +60,8 @@ public class IndividualEntity {
     @Column(name = "marital_status")
     @Enumerated(EnumType.STRING)
     private MaritalStatus maritalStatus;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 }

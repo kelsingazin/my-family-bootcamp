@@ -63,7 +63,13 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         if (user.getMaritalStatus().equals(MaritalStatus.MARRIED)
                 || partner.getMaritalStatus().equals(MaritalStatus.MARRIED)) {
             throw ServiceException.builder()
-                    .message("недостаточно средств для услуги")
+                    .message("нельзя заключить брак, один из партнеров женат")
+                    .errorCode(ErrorCode.ALREADY_MARRIED)
+                    .build();
+        }
+        if (user.getGender().equals(partner.getGender())) {
+            throw ServiceException.builder()
+                    .message("нельзя заключить однополый брак")
                     .errorCode(ErrorCode.ALREADY_MARRIED)
                     .build();
         }
