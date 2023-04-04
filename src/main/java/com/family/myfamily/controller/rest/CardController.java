@@ -27,7 +27,7 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CardResponse createCard(@RequestBody CardDto cardDto) {
         return cardService.createCard(cardDto);
     }
