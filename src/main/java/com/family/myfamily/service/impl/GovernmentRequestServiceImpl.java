@@ -1,8 +1,12 @@
 package com.family.myfamily.service.impl;
 
 import com.family.myfamily.controller.exceptions.ServiceException;
+import com.family.myfamily.mapper.CityMapper;
+import com.family.myfamily.model.dto.CityDto;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
+import com.family.myfamily.model.dto.OfficeDto;
 import com.family.myfamily.model.entities.CardEntity;
+import com.family.myfamily.model.entities.CityEntity;
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
 import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
@@ -12,7 +16,9 @@ import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
+import com.family.myfamily.payload.response.MarriageResponse;
 import com.family.myfamily.repository.CardRepository;
+import com.family.myfamily.repository.CityRepository;
 import com.family.myfamily.repository.GovernmentRequestRepository;
 import com.family.myfamily.repository.IndividualRepository;
 import com.family.myfamily.repository.UserRepository;
@@ -41,6 +47,8 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     private final IndividualRepository individualRepository;
     private final ModelMapper modelMapper;
     private final CardRepository cardRepository;
+    private final CityRepository cityRepository;
+    private final CityMapper cityMapper;
 
     private void payForMarriage(UserEntity user, String cardNumber) {
         CardEntity card = user.getCards().stream()
@@ -183,6 +191,15 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                     .build();
         }
 
+    }
+
+    @Override
+    public MarriageResponse getAllCities() {
+        List<CityEntity> cityEntities = cityRepository.findAll();
+        return MarriageResponse.builder()
+                .sum(5000.0)
+                .cityDtoLis(cityMapper.cityDtoList(cityEntities))
+                .build();
     }
 
 }
