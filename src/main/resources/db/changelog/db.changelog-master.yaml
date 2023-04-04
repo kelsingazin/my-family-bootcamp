@@ -33,3 +33,5 @@ databaseChangeLog:
       file: db/changelog/016_insert_table_cities.sql
   - include:
       file: db/changelog/017_insert_table_offices.sql
+  - include:
+      file: db/changelog/018_insert_table_individuals.sql
