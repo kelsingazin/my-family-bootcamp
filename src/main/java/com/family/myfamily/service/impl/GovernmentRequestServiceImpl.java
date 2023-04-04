@@ -106,8 +106,9 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
         if (request.getIsUserPay()) {
             payForMarriage(user, request.getCardNumber());
-            governmentRequestRepository.save(governmentRequest);
+            GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
             return Check.builder()
+                    .requestId(savedRequest.getId())
                     .sum(5000.0)
                     .date(new Date())
                     .build();
