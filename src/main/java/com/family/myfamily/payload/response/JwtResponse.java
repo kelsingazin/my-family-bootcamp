@@ -20,4 +20,11 @@ public class JwtResponse {
     private final String type = "Bearer";
     private String token;
     private UUID id;
+    private String firstName;
+    private String lastName;
+    @Enumerated(EnumType.STRING)
+    private MaritalStatus status;
+    private String iin;
+    private String cardNumber;
+    private Double balance;
 }
