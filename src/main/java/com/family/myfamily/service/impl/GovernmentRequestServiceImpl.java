@@ -48,6 +48,17 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     private final CityRepository cityRepository;
     private final CityMapper cityMapper;
 
+    private void userValidation(UserEntity currentUser){
+        UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!contextUser.getPassword().equals(currentUser.getPassword())) {
+            throw ServiceException
+                    .builder()
+                    .message("Клиент может иметь доступ только к своим запросам")
+                    .errorCode(ErrorCode.AUTH_ERROR)
+                    .build();
+        }
+    }
+
     private void payForMarriage(UserEntity user, String cardNumber) {
         CardEntity card = user.getCards().stream()
                 .filter(cardEntity -> cardEntity.getNumber().equals(cardNumber))
@@ -92,6 +103,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         UserEntity partner = userRepository.findByPhoneNumber(partnerIndividual.getPhoneNumber());
 
         checkMarriage(userIndividual, partnerIndividual);
+        userValidation(user);
 
         GovernmentRequestEntity governmentRequest = GovernmentRequestEntity.builder()
                 .date(new Date())
@@ -131,12 +143,21 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
 
+        if (!governmentRequest.getStatus().equals("waiting")) {
+            throw ServiceException.builder()
+                    .message("заявка закрыта")
+                    .errorCode(ErrorCode.NOT_ALLOWED)
+                    .build();
+        }
+
         UserEntity user = userRepository.findById(request.getUserId()).orElseThrow(
                 () -> ServiceException.builder()
                         .message("пользователь с таким id не существует")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build()
         );
+
+        userValidation(user);
 
         if (request.getConfirm()) {
 
@@ -150,6 +171,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 governmentRequest.setStatus("processed");
                 governmentRequestRepository.save(governmentRequest);
                 return Check.builder()
+                        .requestId(governmentRequest.getId())
                         .sum(5000.0)
                         .date(new Date())
                         .build();
@@ -160,6 +182,8 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
             governmentRequestRepository.save(governmentRequest);
         }
         return Check.builder()
+                .requestId(request.getGovernmentRequestId())
+                .sum(0.0)
                 .date(new Date())
                 .build();
     }
@@ -168,7 +192,6 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     public List<GovernmentRequestDto> getAllRequests(UUID id) {
         log.info("Получение всех запросов пользователя по userId {}", id);
 
-        UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity currentUser = userRepository.findById(id).orElseThrow(
                 () -> ServiceException.builder()
                         .message("нет запроса с таким идентификационным номером")
@@ -176,20 +199,13 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                         .build()
         );
 
-        if (contextUser.getPassword().equals(currentUser.getPassword())) {
-            List<GovernmentRequestEntity> list = governmentRequestRepository.findAllByRequestUser(currentUser);
-            Type listType = new TypeToken<List<GovernmentRequestDto>>() {
-            }.getType();
+        userValidation(currentUser);
 
-            return modelMapper.map(list, listType);
-        } else {
-            throw ServiceException
-                    .builder()
-                    .message("Клиент может иметь доступ только к своим запросам")
-                    .errorCode(ErrorCode.AUTH_ERROR)
-                    .build();
-        }
+        List<GovernmentRequestEntity> list = governmentRequestRepository.findAllByRequestUser(currentUser);
+        Type listType = new TypeToken<List<GovernmentRequestDto>>() {
+        }.getType();
 
+        return modelMapper.map(list, listType);
     }
 
     @Override
