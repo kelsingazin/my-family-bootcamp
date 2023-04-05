@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/government-request")
+@RequestMapping("api/government-requests")
 @RequiredArgsConstructor
 @Slf4j
 public class GovernmentRequestController {
@@ -41,7 +41,7 @@ public class GovernmentRequestController {
         return governmentRequestService.confirmMarriage(request);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/user-id/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public List<GovernmentRequestDto> getAllRequests(@PathVariable(name = "id") UUID id) {
         return governmentRequestService.getAllRequests(id);

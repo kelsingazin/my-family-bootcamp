@@ -20,7 +20,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("{id}")
+    @GetMapping("/user-id/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
     public UserData getUserData(@PathVariable(name = "id") UUID uuid){
         log.info("GET запрос на данные пользователя по id = {}", uuid);
