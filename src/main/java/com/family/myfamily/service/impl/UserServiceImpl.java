@@ -31,7 +31,6 @@ public class UserServiceImpl implements com.family.myfamily.service.UserService 
 
     @Override
     public UserData getUserData(UUID uuid){
-        log.info("получение данных пользователя");
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity currentUser = userRepository.findById(uuid).orElseThrow(
                 () -> ServiceException.builder()

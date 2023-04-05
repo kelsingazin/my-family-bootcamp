@@ -2,9 +2,7 @@ package com.family.myfamily.service.impl;
 
 import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.mapper.CityMapper;
-import com.family.myfamily.model.dto.CityDto;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
-import com.family.myfamily.model.dto.OfficeDto;
 import com.family.myfamily.model.entities.CardEntity;
 import com.family.myfamily.model.entities.CityEntity;
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
@@ -16,7 +14,7 @@ import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
-import com.family.myfamily.payload.response.MarriageResponse;
+import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.repository.CardRepository;
 import com.family.myfamily.repository.CityRepository;
 import com.family.myfamily.repository.GovernmentRequestRepository;
@@ -194,9 +192,9 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     }
 
     @Override
-    public MarriageResponse getAllCities() {
+    public CitiesResponse getAllCities() {
         List<CityEntity> cityEntities = cityRepository.findAll();
-        return MarriageResponse.builder()
+        return CitiesResponse.builder()
                 .sum(5000.0)
                 .cityDtoLis(cityMapper.cityDtoList(cityEntities))
                 .build();

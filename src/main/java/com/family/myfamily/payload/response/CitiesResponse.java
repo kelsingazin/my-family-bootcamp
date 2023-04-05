@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MarriageResponse {
+public class CitiesResponse {
     private Double sum;
     private List<CityDto> cityDtoLis;
 }

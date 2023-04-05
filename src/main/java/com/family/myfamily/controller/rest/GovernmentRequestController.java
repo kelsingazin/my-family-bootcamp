@@ -1,11 +1,10 @@
 package com.family.myfamily.controller.rest;
 
-import com.family.myfamily.model.dto.CityDto;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
-import com.family.myfamily.payload.response.MarriageResponse;
+import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.service.GovernmentRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +48,7 @@ public class GovernmentRequestController {
 
     @GetMapping("/register-couple")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
-    public MarriageResponse getAllCities(){
+    public CitiesResponse getAllCities(){
         return governmentRequestService.getAllCities();
     }
 

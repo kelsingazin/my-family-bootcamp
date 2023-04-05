@@ -17,7 +17,6 @@ public class UserData {
 
     private String firstName;
     private String lastName;
-    @Enumerated(EnumType.STRING)
     private MaritalStatus status;
     private String iin;
     private String cardNumber;
