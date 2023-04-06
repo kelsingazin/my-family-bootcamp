@@ -41,7 +41,7 @@ public class DocumentController {
         return documentService.getSpecificDocument(userId, documentType);
     }
 
-    @DeleteMapping("/{documentId}")
+    @DeleteMapping("/document/{documentId}")
     @PreAuthorize("hasRole('ROLE_USER')")
     public HttpStatus deleteDocument(@PathVariable UUID documentId) {
         return documentService.deleteDocument(documentId);

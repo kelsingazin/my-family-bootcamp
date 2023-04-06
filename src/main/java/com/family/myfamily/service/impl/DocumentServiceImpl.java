@@ -149,8 +149,7 @@ public class DocumentServiceImpl implements DocumentService {
         Optional<DocumentEntity> optionalDocumentEntity = documentRepository.findByIdAndDeletedIsFalse(documentId);
         if (optionalDocumentEntity.isPresent()) {
             DocumentEntity document = optionalDocumentEntity.get();
-            document.setDeleted(Boolean.TRUE);
-            documentRepository.save(document);
+            documentRepository.deleteDocumentEntity(Boolean.TRUE, document.getId());
             return HttpStatus.OK;
         } else {
             log.error("Документ с таким documentId = {} не существует", documentId);
