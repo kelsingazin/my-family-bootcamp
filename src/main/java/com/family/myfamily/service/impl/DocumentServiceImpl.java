@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class DocumentServiceImpl implements DocumentService {
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
         if (Objects.equals(contextUser.getPassword(), currentUser.getPassword())) {
-            List<DocumentEntity> documents = documentRepository.findAllByUser_Id(userId);
+            List<DocumentEntity> documents = documentRepository.findAllByUser_IdAndDeletedIsFalse(userId);
 
             Type listType = new TypeToken<List<DocumentDto>>() {
             }.getType();
@@ -121,7 +122,7 @@ public class DocumentServiceImpl implements DocumentService {
     private void checkDocumentExistence(DocumentEntity documentEntity) {
         log.info("Проверка на существование документа в системе");
         if (DocumentType.PASSPORT.equals(documentEntity.getDocumentType())) {
-            documentRepository.findByPassportSeries(documentEntity.getPassportSeries())
+            documentRepository.findByPassportSeriesAndDeletedIsFalse(documentEntity.getPassportSeries())
                     .ifPresent(document -> {
                                 throw ServiceException.builder()
                                         .errorCode(ErrorCode.ALREADY_EXISTS)
@@ -132,7 +133,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         if (DocumentType.DRIVER_LICENSE.equals(documentEntity.getDocumentType())) {
-            documentRepository.findByLicenseNumber(documentEntity.getLicenseNumber())
+            documentRepository.findByLicenseNumberAndDeletedIsFalse(documentEntity.getLicenseNumber())
                     .ifPresent(document -> {
                                 throw ServiceException.builder()
                                         .errorCode(ErrorCode.ALREADY_EXISTS)
@@ -140,6 +141,24 @@ public class DocumentServiceImpl implements DocumentService {
                                         .build();
                             }
                     );
+        }
+    }
+
+    @Override
+    public HttpStatus deleteDocument(UUID documentId) {
+        Optional<DocumentEntity> optionalDocumentEntity = documentRepository.findByIdAndDeletedIsFalse(documentId);
+        if (optionalDocumentEntity.isPresent()) {
+            DocumentEntity document = optionalDocumentEntity.get();
+            document.setDeleted(Boolean.TRUE);
+            documentRepository.save(document);
+            return HttpStatus.OK;
+        } else {
+            log.error("Документ с таким documentId = {} не существует", documentId);
+            throw ServiceException
+                    .builder()
+                    .errorCode(ErrorCode.NOT_EXISTS)
+                    .message("Документ с таким id не существует")
+                    .build();
         }
     }
 }

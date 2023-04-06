@@ -11,9 +11,11 @@ import java.util.UUID;
 @Repository
 public interface DocumentRepository extends JpaRepository<DocumentEntity, UUID> {
 
-    List<DocumentEntity> findAllByUser_Id(UUID userId);
+    List<DocumentEntity> findAllByUser_IdAndDeletedIsFalse(UUID userId);
 
-    Optional<DocumentEntity> findByPassportSeries(String series);
+    Optional<DocumentEntity> findByPassportSeriesAndDeletedIsFalse(String series);
 
-    Optional<DocumentEntity> findByLicenseNumber(String licenseNumber);
+    Optional<DocumentEntity> findByLicenseNumberAndDeletedIsFalse(String licenseNumber);
+
+    Optional<DocumentEntity> findByIdAndDeletedIsFalse(UUID uuid);
 }
