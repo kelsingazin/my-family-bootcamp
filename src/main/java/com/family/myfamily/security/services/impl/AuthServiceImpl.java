@@ -1,8 +1,10 @@
 package com.family.myfamily.security.services.impl;
 
+import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.payload.request.LoginRequest;
 import com.family.myfamily.payload.response.JwtResponse;
+import com.family.myfamily.repository.IndividualRepository;
 import com.family.myfamily.repository.UserRepository;
 import com.family.myfamily.security.jwt.JwtUtils;
 import com.family.myfamily.security.services.AuthService;
@@ -21,6 +23,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
+    private final IndividualRepository individualRepository;
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -31,10 +34,17 @@ public class AuthServiceImpl implements AuthService {
 
         User userDetails = (User) authentication.getPrincipal();
         UserEntity user = userRepository.findByPhoneNumber(userDetails.getUsername());
+        IndividualEntity individual = individualRepository.findByPhoneNumber(user.getPhoneNumber());
 
         return JwtResponse.builder()
                 .id(user.getId())
                 .token(jwt)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .iin(individual.getIin())
+                .cardNumber(user.getCards().get(0).getNumber())
+                .balance(user.getCards().get(0).getBalance())
+                .status(individual.getMaritalStatus())
                 .build();
     }
 }

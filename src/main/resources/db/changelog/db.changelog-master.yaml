@@ -21,3 +21,17 @@ databaseChangeLog:
       file: db/changelog/010_add_constraints_credit-cards.sql
   - include:
       file: db/changelog/011_insert_table_users.sql
+  - include:
+      file: db/changelog/012_add_column_gender_individuals.sql
+  - include:
+      file: db/changelog/013_create_table_offices.sql
+  - include:
+      file: db/changelog/014_create_table_cities.sql
+  - include:
+      file: db/changelog/015_add_constraints_offices.sql
+  - include:
+      file: db/changelog/016_insert_table_cities.sql
+  - include:
+      file: db/changelog/017_insert_table_offices.sql
+  - include:
+      file: db/changelog/018_insert_table_individuals.sql

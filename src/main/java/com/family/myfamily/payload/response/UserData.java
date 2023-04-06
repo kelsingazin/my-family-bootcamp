@@ -8,21 +8,15 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JwtResponse {
+public class UserData {
 
-    private final String type = "Bearer";
-    private String token;
-    private UUID id;
     private String firstName;
     private String lastName;
-    @Enumerated(EnumType.STRING)
     private MaritalStatus status;
     private String iin;
     private String cardNumber;
