@@ -3,11 +3,7 @@ package com.family.myfamily.service.impl;
 import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.mapper.CityMapper;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
-import com.family.myfamily.model.entities.CardEntity;
-import com.family.myfamily.model.entities.CityEntity;
-import com.family.myfamily.model.entities.GovernmentRequestEntity;
-import com.family.myfamily.model.entities.IndividualEntity;
-import com.family.myfamily.model.entities.UserEntity;
+import com.family.myfamily.model.entities.*;
 import com.family.myfamily.model.enums.MaritalStatus;
 import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
@@ -17,11 +13,7 @@ import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.payload.response.Notification;
-import com.family.myfamily.repository.CardRepository;
-import com.family.myfamily.repository.CityRepository;
-import com.family.myfamily.repository.GovernmentRequestRepository;
-import com.family.myfamily.repository.IndividualRepository;
-import com.family.myfamily.repository.UserRepository;
+import com.family.myfamily.repository.*;
 import com.family.myfamily.service.GovernmentRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,12 +38,13 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     private final UserRepository userRepository;
     private final GovernmentRequestRepository governmentRequestRepository;
     private final IndividualRepository individualRepository;
-    private final ModelMapper modelMapper;
     private final CardRepository cardRepository;
     private final CityRepository cityRepository;
+    private final EmailSendService emailSendService;
+    private final ModelMapper modelMapper;
     private final CityMapper cityMapper;
 
-    private void userValidation(UserEntity currentUser){
+    private void userValidation(UserEntity currentUser) {
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (!contextUser.getPassword().equals(currentUser.getPassword())) {
             throw ServiceException
@@ -98,7 +91,6 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     @Override
     @Transactional
     public Check registerCouple(RegisterCouple request) {
-
         IndividualEntity userIndividual = individualRepository.findByIin(request.getUserIin());
         IndividualEntity partnerIndividual = individualRepository.findByIin(request.getPartnerIin());
 
@@ -136,18 +128,18 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                     .date(new Date())
                     .build();
         } else {
-            governmentRequestRepository.save(governmentRequest);
+            GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
             return Check.builder()
+                    .requestId(savedRequest.getId())
+                    .sum(0.0)
                     .date(new Date())
                     .build();
-
         }
     }
 
     @Transactional
     @Override
     public Check confirmMarriage(ConfirmMarriage request) {
-
         GovernmentRequestEntity governmentRequest = governmentRequestRepository.findById(request.getGovernmentRequestId())
                 .orElseThrow(() -> ServiceException.builder()
                         .message("нет запроса с таким идентификационным номером")
@@ -171,27 +163,31 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         userValidation(user);
 
         if (request.getConfirm()) {
-
             if (governmentRequest.getIsPartnerPaid()) {
-
                 governmentRequest.setStatus(RequestStatus.PROCESSED);
                 governmentRequestRepository.save(governmentRequest);
-
+                individualRepository.updateMarriageStatus(governmentRequest.getRequestUser().getPhoneNumber(), MaritalStatus.MARRIED);
+                individualRepository.updateMarriageStatus(governmentRequest.getResponseUser().getPhoneNumber(), MaritalStatus.MARRIED);
+                sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.PROCESSED);
             } else {
                 payForMarriage(user, request.getCardNumber());
                 governmentRequest.setStatus(RequestStatus.PROCESSED);
                 governmentRequestRepository.save(governmentRequest);
+                individualRepository.updateMarriageStatus(governmentRequest.getRequestUser().getPhoneNumber(), MaritalStatus.MARRIED);
+                individualRepository.updateMarriageStatus(governmentRequest.getResponseUser().getPhoneNumber(), MaritalStatus.MARRIED);
+                sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.PROCESSED);
                 return Check.builder()
                         .requestId(governmentRequest.getId())
                         .sum(5000.0)
                         .date(new Date())
                         .build();
             }
-
         } else {
             governmentRequest.setStatus(RequestStatus.REJECTED);
             governmentRequestRepository.save(governmentRequest);
+            sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.REJECTED);
         }
+
         return Check.builder()
                 .requestId(request.getGovernmentRequestId())
                 .sum(0.0)
@@ -228,6 +224,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .build();
     }
 
+    @Transactional
     @Override
     public List<Notification> getNotifications(UUID id) {
         log.info("Получение всех уведомлений пользователя по userId {}", id);
@@ -251,4 +248,30 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         return modelMapper.map(list, listType);
     }
 
+    private void sendLetter(UserEntity recipient, UserEntity partner, RequestStatus requestStatus) {
+        String title;
+        String text;
+        if (RequestStatus.PROCESSED.equals(requestStatus)) {
+            title = "Подтверждение брака";
+            text = """
+                    Уважаемый(ая) %s %s,\s
+                    Рады сообщить, что Ваш брак с %s %s был успешно подтвержден!\s
+                    Примите наши искренние поздравления!\s""";
+        } else {
+            title = "Подтверждение брака";
+            text = """
+                    Уважаемый(ая) %s %s,\s
+                    К сожалению, Ваш брак с %s %s не был зарегистрирован!\s
+                    Ваш партнер отказал в браке.\s""";
+        }
+        emailSendService.sendEmail(recipient.getEmail(), title,
+                String.format(text,
+                        recipient.getFirstName(), recipient.getLastName(),
+                        partner.getFirstName(), partner.getLastName()));
+
+        emailSendService.sendEmail(partner.getEmail(), title,
+                String.format(text,
+                        partner.getFirstName(), partner.getLastName(),
+                        recipient.getFirstName(), recipient.getLastName()));
+    }
 }

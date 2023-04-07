@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CitiesResponse {
+
     private Double sum;
     private List<CityDto> cityDtoLis;
 }

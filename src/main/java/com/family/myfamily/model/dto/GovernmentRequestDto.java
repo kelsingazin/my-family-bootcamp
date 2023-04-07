@@ -20,5 +20,4 @@ public class GovernmentRequestDto {
     private Date date;
     private RequestStatus status;
     private RequestType type;
-
 }

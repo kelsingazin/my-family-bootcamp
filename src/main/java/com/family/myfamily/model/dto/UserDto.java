@@ -15,5 +15,6 @@ public class UserDto {
     public String firstName;
     public String lastName;
     public String phoneNumber;
+    public String email;
     public List<CardEntity> cards;
 }

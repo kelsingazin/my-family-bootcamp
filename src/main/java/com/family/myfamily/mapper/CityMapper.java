@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
 public class CityMapper {
 
     private final OfficeMapper officeMapper;
-    public CityDto toDto(CityEntity city){
+
+    public CityDto toDto(CityEntity city) {
         return CityDto.builder().
                 id(city.getId())
                 .name(city.getName())
@@ -21,7 +22,7 @@ public class CityMapper {
                 .build();
     }
 
-    public List<CityDto> cityDtoList(List<CityEntity> list){
+    public List<CityDto> cityDtoList(List<CityEntity> list) {
         return list.stream().map(this::toDto).collect(Collectors.toList());
     }
 }
