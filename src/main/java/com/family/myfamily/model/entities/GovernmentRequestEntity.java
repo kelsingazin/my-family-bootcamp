@@ -1,5 +1,6 @@
 package com.family.myfamily.model.entities;
 
+import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,7 +56,8 @@ public class GovernmentRequestEntity {
     private Date date;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private RequestStatus status;
 
     @Column(name = "type")
     @Enumerated(EnumType.STRING)

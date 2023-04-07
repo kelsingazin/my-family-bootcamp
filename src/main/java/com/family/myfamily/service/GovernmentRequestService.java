@@ -5,6 +5,7 @@ import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
+import com.family.myfamily.payload.response.Notification;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,4 +18,6 @@ public interface GovernmentRequestService {
     List<GovernmentRequestDto> getAllRequests(UUID id);
 
     CitiesResponse getAllCities();
+
+    List<Notification> getNotifications(UUID id);
 }
