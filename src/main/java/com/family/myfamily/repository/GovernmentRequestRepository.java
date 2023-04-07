@@ -12,5 +12,7 @@ import java.util.UUID;
 public interface GovernmentRequestRepository extends JpaRepository<GovernmentRequestEntity, UUID> {
 
     List<GovernmentRequestEntity> findAllByRequestUser(UserEntity requestUser);
+    List<GovernmentRequestEntity> findAllByResponseUser(UserEntity responseUser);
+    GovernmentRequestEntity findByRequestUserAndResponseUser(UserEntity requestUser, UserEntity responseUser);
 
 }

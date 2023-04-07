@@ -9,12 +9,14 @@ import com.family.myfamily.model.entities.GovernmentRequestEntity;
 import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.model.enums.MaritalStatus;
+import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
 import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
+import com.family.myfamily.payload.response.Notification;
 import com.family.myfamily.repository.CardRepository;
 import com.family.myfamily.repository.CityRepository;
 import com.family.myfamily.repository.GovernmentRequestRepository;
@@ -34,6 +36,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -102,6 +105,14 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         UserEntity user = userRepository.findByPhoneNumber(userIndividual.getPhoneNumber());
         UserEntity partner = userRepository.findByPhoneNumber(partnerIndividual.getPhoneNumber());
 
+        GovernmentRequestEntity requestEntity = governmentRequestRepository.findByRequestUserAndResponseUser(user, partner);
+        if (requestEntity != null) {
+            throw ServiceException.builder()
+                    .errorCode(ErrorCode.ALREADY_REQUESTED)
+                    .message("такая заявка уже существует")
+                    .build();
+        }
+
         checkMarriage(userIndividual, partnerIndividual);
         userValidation(user);
 
@@ -113,7 +124,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .requestUser(user)
                 .responseUser(partner)
                 .type(RequestType.MARRIAGE)
-                .status("waiting")
+                .status(RequestStatus.WAITING)
                 .build();
 
         if (request.getIsUserPay()) {
@@ -143,7 +154,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
 
-        if (!governmentRequest.getStatus().equals("waiting")) {
+        if (!governmentRequest.getStatus().equals(RequestStatus.WAITING)) {
             throw ServiceException.builder()
                     .message("заявка закрыта")
                     .errorCode(ErrorCode.NOT_ALLOWED)
@@ -163,12 +174,12 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
             if (governmentRequest.getIsPartnerPaid()) {
 
-                governmentRequest.setStatus("processed");
+                governmentRequest.setStatus(RequestStatus.PROCESSED);
                 governmentRequestRepository.save(governmentRequest);
 
             } else {
                 payForMarriage(user, request.getCardNumber());
-                governmentRequest.setStatus("processed");
+                governmentRequest.setStatus(RequestStatus.PROCESSED);
                 governmentRequestRepository.save(governmentRequest);
                 return Check.builder()
                         .requestId(governmentRequest.getId())
@@ -178,7 +189,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
             }
 
         } else {
-            governmentRequest.setStatus("rejected");
+            governmentRequest.setStatus(RequestStatus.REJECTED);
             governmentRequestRepository.save(governmentRequest);
         }
         return Check.builder()
@@ -215,6 +226,29 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .sum(5000.0)
                 .cityDtoLis(cityMapper.cityDtoList(cityEntities))
                 .build();
+    }
+
+    @Override
+    public List<Notification> getNotifications(UUID id) {
+        log.info("Получение всех уведомлений пользователя по userId {}", id);
+
+        UserEntity currentUser = userRepository.findById(id).orElseThrow(
+                () -> ServiceException.builder()
+                        .message("нет запроса с таким идентификационным номером")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build()
+        );
+
+        userValidation(currentUser);
+
+        List<GovernmentRequestEntity> list = governmentRequestRepository.findAllByResponseUser(currentUser);
+        list = list.stream().filter(
+                governmentRequestEntity -> governmentRequestEntity.getStatus().equals(RequestStatus.WAITING)
+        ).collect(Collectors.toList());
+        Type listType = new TypeToken<List<Notification>>() {
+        }.getType();
+
+        return modelMapper.map(list, listType);
     }
 
 }

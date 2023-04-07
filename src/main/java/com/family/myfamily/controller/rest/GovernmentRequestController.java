@@ -5,6 +5,7 @@ import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterCouple;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
+import com.family.myfamily.payload.response.Notification;
 import com.family.myfamily.service.GovernmentRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class GovernmentRequestController {
     @PostMapping("/register-couple")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public Check registerCouple(@RequestBody RegisterCouple request) {
+        log.info("POST request to register couple");
         return governmentRequestService.registerCouple(request);
     }
 
@@ -50,6 +52,12 @@ public class GovernmentRequestController {
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public CitiesResponse getAllCities(){
         return governmentRequestService.getAllCities();
+    }
+
+    @GetMapping("/notifications/user-id/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    public List<Notification> getNotifications(@PathVariable(name = "id") UUID id){
+        return governmentRequestService.getNotifications(id);
     }
 
 }
