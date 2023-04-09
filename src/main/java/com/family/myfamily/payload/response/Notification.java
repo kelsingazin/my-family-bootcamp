@@ -1,7 +1,6 @@
 package com.family.myfamily.payload.response;
 
 import com.family.myfamily.model.dto.IndividualDto;
-import com.family.myfamily.model.dto.UserDto;
 import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
 import lombok.AllArgsConstructor;

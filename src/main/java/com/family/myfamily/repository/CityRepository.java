@@ -1,7 +1,6 @@
 package com.family.myfamily.repository;
 
 import com.family.myfamily.model.entities.CityEntity;
-import com.family.myfamily.model.entities.IndividualEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +11,4 @@ import java.util.UUID;
 public interface CityRepository extends JpaRepository<CityEntity, UUID> {
 
     Optional<CityEntity> findById(UUID id);
-
 }

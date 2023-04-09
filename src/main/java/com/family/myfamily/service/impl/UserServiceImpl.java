@@ -1,23 +1,18 @@
 package com.family.myfamily.service.impl;
 
 import com.family.myfamily.controller.exceptions.ServiceException;
-import com.family.myfamily.model.entities.CardEntity;
 import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.payload.codes.ErrorCode;
-import com.family.myfamily.payload.response.CardResponse;
 import com.family.myfamily.payload.response.UserData;
 import com.family.myfamily.repository.IndividualRepository;
 import com.family.myfamily.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.TypeToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,7 +25,7 @@ public class UserServiceImpl implements com.family.myfamily.service.UserService 
     private final IndividualRepository individualRepository;
 
     @Override
-    public UserData getUserData(UUID uuid){
+    public UserData getUserData(UUID uuid) {
         UserDetails contextUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserEntity currentUser = userRepository.findById(uuid).orElseThrow(
                 () -> ServiceException.builder()
@@ -57,5 +52,4 @@ public class UserServiceImpl implements com.family.myfamily.service.UserService 
                     .build();
         }
     }
-
 }

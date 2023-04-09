@@ -17,5 +17,4 @@ public class Check {
     private UUID requestId;
     private Double sum;
     private Date date;
-
 }
