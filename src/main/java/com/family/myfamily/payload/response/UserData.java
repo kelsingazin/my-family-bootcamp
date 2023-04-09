@@ -18,4 +18,5 @@ public class UserData {
     private String iin;
     private String cardNumber;
     private Double balance;
+    private String email;
 }

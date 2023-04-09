@@ -24,7 +24,7 @@ public interface DocumentRepository extends JpaRepository<DocumentEntity, UUID> 
     Optional<DocumentEntity> findByIdAndDeletedIsFalse(UUID uuid);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE DocumentEntity d SET d.deleted = :isDeleted WHERE d.id = :documentId")
     void deleteDocumentEntity(@Param("isDeleted") boolean isDeleted,
                               @Param("documentId") UUID documentId);

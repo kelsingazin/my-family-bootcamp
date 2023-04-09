@@ -22,7 +22,7 @@ public interface IndividualRepository extends JpaRepository<IndividualEntity, UU
     IndividualEntity findByPhoneNumber(String phoneNumber);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE IndividualEntity i SET i.maritalStatus = :maritalStatus WHERE i.phoneNumber = :phoneNumber")
     void updateMarriageStatus(@Param("phoneNumber") String phoneNumber,
                               @Param("maritalStatus") MaritalStatus maritalStatus);
