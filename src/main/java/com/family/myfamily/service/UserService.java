@@ -7,4 +7,6 @@ import java.util.UUID;
 public interface UserService {
 
     UserData getUserData(UUID uuid);
+
+    UserData updateEmail(UUID userId, String email);
 }
