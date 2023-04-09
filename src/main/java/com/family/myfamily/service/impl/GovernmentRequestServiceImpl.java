@@ -15,6 +15,7 @@ import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.payload.response.Notification;
 import com.family.myfamily.repository.*;
 import com.family.myfamily.service.GovernmentRequestService;
+import com.family.myfamily.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -249,21 +250,10 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     }
 
     private void sendLetter(UserEntity recipient, UserEntity partner, RequestStatus requestStatus) {
-        String title;
-        String text;
-        if (RequestStatus.PROCESSED.equals(requestStatus)) {
-            title = "Подтверждение брака";
-            text = """
-                    Уважаемый(ая) %s %s,\s
-                    Рады сообщить, что Ваш брак с %s %s был успешно подтвержден!\s
-                    Примите наши искренние поздравления!\s""";
-        } else {
-            title = "Подтверждение брака";
-            text = """
-                    Уважаемый(ая) %s %s,\s
-                    К сожалению, Ваш брак с %s %s не был зарегистрирован!\s
-                    Ваш партнер отказал в браке.\s""";
-        }
+        String title = Constants.MARRIAGE_CONFIRM;
+        String text = RequestStatus.PROCESSED.equals(requestStatus) ?
+                Constants.SUCCESS_MARRIAGE_CONFIRM : Constants.REJECTED_MARRIAGE_CONFIRM;
+
         emailSendService.sendEmail(recipient.getEmail(), title,
                 String.format(text,
                         recipient.getFirstName(), recipient.getLastName(),
