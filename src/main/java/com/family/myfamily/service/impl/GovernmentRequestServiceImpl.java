@@ -69,7 +69,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                     .errorCode(ErrorCode.NOT_ENOUGH_MONEY)
                     .build();
         }
-        card.setBalance(card.getBalance() - 5000);
+        card.setBalance(card.getBalance() - Constants.MARRIAGE_PAYMENT);
         cardRepository.save(card);
     }
 
@@ -125,7 +125,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
             GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
             return Check.builder()
                     .requestId(savedRequest.getId())
-                    .sum(5000.0)
+                    .sum(Constants.MARRIAGE_PAYMENT)
                     .date(new Date())
                     .build();
         } else {
@@ -179,7 +179,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.PROCESSED);
                 return Check.builder()
                         .requestId(governmentRequest.getId())
-                        .sum(5000.0)
+                        .sum(Constants.MARRIAGE_PAYMENT)
                         .date(new Date())
                         .build();
             }
@@ -220,7 +220,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     public CitiesResponse getAllCities() {
         List<CityEntity> cityEntities = cityRepository.findAll();
         return CitiesResponse.builder()
-                .sum(5000.0)
+                .sum(Constants.MARRIAGE_PAYMENT)
                 .cityDtoLis(cityMapper.cityDtoList(cityEntities))
                 .build();
     }
