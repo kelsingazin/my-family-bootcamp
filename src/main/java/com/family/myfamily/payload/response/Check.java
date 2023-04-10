@@ -1,5 +1,6 @@
 package com.family.myfamily.payload.response;
 
+import com.family.myfamily.model.enums.RequestType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.UUID;
 public class Check {
 
     private UUID requestId;
+    private RequestType type;
     private Double sum;
     private Date date;
 }

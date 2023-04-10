@@ -2,7 +2,8 @@ package com.family.myfamily.service;
 
 import com.family.myfamily.model.dto.GovernmentRequestDto;
 import com.family.myfamily.payload.request.ConfirmMarriage;
-import com.family.myfamily.payload.request.RegisterCouple;
+import com.family.myfamily.payload.request.RegisterBabyRequest;
+import com.family.myfamily.payload.request.RegisterCoupleRequest;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.payload.response.Notification;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 public interface GovernmentRequestService {
 
-    Check registerCouple(RegisterCouple request);
+    Check registerCouple(RegisterCoupleRequest request);
 
     Check confirmMarriage(ConfirmMarriage request);
 
@@ -21,4 +22,6 @@ public interface GovernmentRequestService {
     CitiesResponse getAllCities();
 
     List<Notification> getNotifications(UUID id);
+
+    Check registerBaby(RegisterBabyRequest request);
 }

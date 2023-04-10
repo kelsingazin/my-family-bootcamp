@@ -4,12 +4,14 @@ import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.mapper.CityMapper;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
 import com.family.myfamily.model.entities.*;
+import com.family.myfamily.model.enums.Gender;
 import com.family.myfamily.model.enums.MaritalStatus;
 import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
 import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.payload.request.ConfirmMarriage;
-import com.family.myfamily.payload.request.RegisterCouple;
+import com.family.myfamily.payload.request.RegisterBabyRequest;
+import com.family.myfamily.payload.request.RegisterCoupleRequest;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.payload.response.Notification;
@@ -56,20 +58,20 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         }
     }
 
-    private void payForMarriage(UserEntity user, String cardNumber) {
+    private void makePayment(UserEntity user, UUID cardId, RequestType requestType) {
         CardEntity card = user.getCards().stream()
-                .filter(cardEntity -> cardEntity.getNumber().equals(cardNumber))
+                .filter(cardEntity -> cardEntity.getId().equals(cardId))
                 .toList()
                 .get(0);
-
-        if (card.getBalance() - 5000 < 0) {
+        Double payAmount = requestType.equals(RequestType.BABY_BIRTH) ? Constants.BABY_PAYMENT : Constants.MARRIAGE_PAYMENT;
+        if (card.getBalance() - payAmount < 0) {
             log.info("недостаточно средств для услуги");
             throw ServiceException.builder()
                     .message("недостаточно средств для услуги")
                     .errorCode(ErrorCode.NOT_ENOUGH_MONEY)
                     .build();
         }
-        card.setBalance(card.getBalance() - Constants.MARRIAGE_PAYMENT);
+        card.setBalance(card.getBalance() - payAmount);
         cardRepository.save(card);
     }
 
@@ -91,7 +93,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
     @Override
     @Transactional
-    public Check registerCouple(RegisterCouple request) {
+    public Check registerCouple(RegisterCoupleRequest request) {
         IndividualEntity userIndividual = individualRepository.findByIin(request.getUserIin());
         IndividualEntity partnerIndividual = individualRepository.findByIin(request.getPartnerIin());
 
@@ -121,11 +123,12 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .build();
 
         if (request.getIsUserPay()) {
-            payForMarriage(user, request.getCardNumber());
+            makePayment(user, request.getCardId(), RequestType.MARRIAGE);
             GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
             return Check.builder()
                     .requestId(savedRequest.getId())
                     .sum(Constants.MARRIAGE_PAYMENT)
+                    .type(RequestType.MARRIAGE)
                     .date(new Date())
                     .build();
         } else {
@@ -133,6 +136,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
             return Check.builder()
                     .requestId(savedRequest.getId())
                     .sum(0.0)
+                    .type(RequestType.MARRIAGE)
                     .date(new Date())
                     .build();
         }
@@ -171,7 +175,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 individualRepository.updateMarriageStatus(governmentRequest.getResponseUser().getPhoneNumber(), MaritalStatus.MARRIED);
                 sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.PROCESSED);
             } else {
-                payForMarriage(user, request.getCardNumber());
+                makePayment(user, request.getCardId(), RequestType.MARRIAGE);
                 governmentRequest.setStatus(RequestStatus.PROCESSED);
                 governmentRequestRepository.save(governmentRequest);
                 individualRepository.updateMarriageStatus(governmentRequest.getRequestUser().getPhoneNumber(), MaritalStatus.MARRIED);
@@ -180,6 +184,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 return Check.builder()
                         .requestId(governmentRequest.getId())
                         .sum(Constants.MARRIAGE_PAYMENT)
+                        .type(RequestType.MARRIAGE)
                         .date(new Date())
                         .build();
             }
@@ -192,6 +197,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         return Check.builder()
                 .requestId(request.getGovernmentRequestId())
                 .sum(0.0)
+                .type(RequestType.MARRIAGE)
                 .date(new Date())
                 .build();
     }
@@ -247,6 +253,63 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         }.getType();
 
         return modelMapper.map(list, listType);
+    }
+
+    @Override
+    public Check registerBaby(RegisterBabyRequest request) {
+        log.info("регистрация рождения ребенка {}", request.getUserId());
+        UserEntity requestingUser = userRepository.findById(request.getUserId()).orElseThrow(
+                () -> ServiceException.builder()
+                        .message("нет запроса с таким идентификационным номером")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build()
+        );
+        log.info("валдиация пользователя");
+        userValidation(requestingUser);
+
+        IndividualEntity mother = individualRepository.findByIin(request.getMotherIin());
+        IndividualEntity father = individualRepository.findByIin(request.getFatherIin());
+
+        if (!mother.getGender().equals(Gender.FEMALE) || !father.getGender().equals(Gender.MALE)){
+            throw ServiceException.builder()
+                    .errorCode(ErrorCode.NOT_ALLOWED)
+                    .message("неправильно ввели данные отца или мамы")
+                    .build();
+        }
+
+        if (!requestingUser.getPhoneNumber().equals(mother.getPhoneNumber()) && !requestingUser.getPhoneNumber().equals(father.getPhoneNumber())){
+            throw ServiceException.builder()
+                    .errorCode(ErrorCode.NOT_ALLOWED)
+                    .message("вы можете зарегистрировать только своего ребенка")
+                    .build();
+        }
+
+        log.info("произведение оплаты");
+        makePayment(requestingUser, request.getCardId(), RequestType.BABY_BIRTH);
+
+        GovernmentRequestEntity governmentRequest = GovernmentRequestEntity.builder()
+                .requestUser(requestingUser)
+                .country(request.getCountry())
+                .city(request.getCity())
+                .office(request.getOffice())
+                .birthDate(request.getBirthDate())
+                .father(father)
+                .mother(mother)
+                .status(RequestStatus.PROCESSED)
+                .firstName(request.getFirstName())
+                .middleName(request.getMiddleName())
+                .lastName(request.getLastName())
+                .type(RequestType.BABY_BIRTH)
+                .build();
+
+        log.info("сохранение запроса");
+        GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
+        return Check.builder()
+                .requestId(savedRequest.getId())
+                .date(new Date())
+                .type(RequestType.BABY_BIRTH)
+                .sum(Constants.BABY_PAYMENT)
+                .build();
     }
 
     private void sendLetter(UserEntity recipient, UserEntity partner, RequestStatus requestStatus) {
