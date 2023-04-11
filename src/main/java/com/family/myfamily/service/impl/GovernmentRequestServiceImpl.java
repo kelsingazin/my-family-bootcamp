@@ -3,7 +3,11 @@ package com.family.myfamily.service.impl;
 import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.mapper.CityMapper;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
-import com.family.myfamily.model.entities.*;
+import com.family.myfamily.model.entities.CardEntity;
+import com.family.myfamily.model.entities.CityEntity;
+import com.family.myfamily.model.entities.GovernmentRequestEntity;
+import com.family.myfamily.model.entities.IndividualEntity;
+import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.model.enums.Gender;
 import com.family.myfamily.model.enums.MaritalStatus;
 import com.family.myfamily.model.enums.RequestStatus;
@@ -12,11 +16,16 @@ import com.family.myfamily.payload.codes.ErrorCode;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterBabyRequest;
 import com.family.myfamily.payload.request.RegisterCoupleRequest;
+import com.family.myfamily.payload.response.BabyBirthCertificate;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.payload.response.MarriageCertificate;
 import com.family.myfamily.payload.response.Notification;
-import com.family.myfamily.repository.*;
+import com.family.myfamily.repository.CardRepository;
+import com.family.myfamily.repository.CityRepository;
+import com.family.myfamily.repository.GovernmentRequestRepository;
+import com.family.myfamily.repository.IndividualRepository;
+import com.family.myfamily.repository.UserRepository;
 import com.family.myfamily.service.GovernmentRequestService;
 import com.family.myfamily.utils.Constants;
 import lombok.RequiredArgsConstructor;
@@ -281,14 +290,14 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         IndividualEntity mother = individualRepository.findByIin(request.getMotherIin());
         IndividualEntity father = individualRepository.findByIin(request.getFatherIin());
 
-        if (!mother.getGender().equals(Gender.FEMALE) || !father.getGender().equals(Gender.MALE)){
+        if (!mother.getGender().equals(Gender.FEMALE) || !father.getGender().equals(Gender.MALE)) {
             throw ServiceException.builder()
                     .errorCode(ErrorCode.NOT_ALLOWED)
                     .message("неправильно ввели данные отца или мамы")
                     .build();
         }
 
-        if (!requestingUser.getPhoneNumber().equals(mother.getPhoneNumber()) && !requestingUser.getPhoneNumber().equals(father.getPhoneNumber())){
+        if (!requestingUser.getPhoneNumber().equals(mother.getPhoneNumber()) && !requestingUser.getPhoneNumber().equals(father.getPhoneNumber())) {
             throw ServiceException.builder()
                     .errorCode(ErrorCode.NOT_ALLOWED)
                     .message("вы можете зарегистрировать только своего ребенка")
@@ -345,8 +354,8 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         IndividualEntity partnerOne = individualRepository.findByPhoneNumber(requestingUser.getPhoneNumber());
         IndividualEntity partnerTwo = individualRepository.findByPhoneNumber(requestEntity.getResponseUser().getPhoneNumber());
 
-        IndividualEntity male = partnerOne.getGender().equals(Gender.MALE)? partnerOne : partnerTwo;
-        IndividualEntity female = partnerOne.getGender().equals(Gender.FEMALE)? partnerOne : partnerTwo;
+        IndividualEntity male = partnerOne.getGender().equals(Gender.MALE) ? partnerOne : partnerTwo;
+        IndividualEntity female = partnerOne.getGender().equals(Gender.FEMALE) ? partnerOne : partnerTwo;
 
         return MarriageCertificate.builder()
                 .id(requestEntity.getId())
@@ -362,6 +371,44 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .femaleLastName(female.getLastName())
                 .femaleMiddleName(female.getMiddleName())
                 .femaleNationality(female.getNationality())
+                .build();
+    }
+
+    @Override
+    public BabyBirthCertificate getBabyBirthCertificate(UUID id) {
+        UserEntity requestingUser = userRepository.findById(id).orElseThrow(
+                () -> ServiceException.builder()
+                        .message("нет запроса с таким идентификационным номером")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build()
+        );
+        log.info("валдиация пользователя");
+        userValidation(requestingUser);
+
+        log.info("поиск заявки о рождении ребенка");
+
+        IndividualEntity userIndividual = individualRepository.findByPhoneNumber(requestingUser.getPhoneNumber());
+
+        GovernmentRequestEntity governmentRequest = userIndividual.getGender().equals(Gender.MALE) ?
+                governmentRequestRepository.findByFatherAndType(userIndividual, RequestType.BABY_BIRTH) : governmentRequestRepository.findByMotherAndType(userIndividual, RequestType.BABY_BIRTH);
+
+        return BabyBirthCertificate.builder()
+                .id(governmentRequest.getId())
+                .city(governmentRequest.getCity())
+                .office(governmentRequest.getOffice())
+                .country(governmentRequest.getCountry())
+                .maleFirstName(governmentRequest.getFather().getFirstName())
+                .maleLastName(governmentRequest.getFather().getLastName())
+                .maleMiddleName(governmentRequest.getFather().getMiddleName())
+                .maleNationality(governmentRequest.getFather().getNationality())
+                .femaleFirstName(governmentRequest.getMother().getFirstName())
+                .femaleLastName(governmentRequest.getMother().getLastName())
+                .babyMiddleName(governmentRequest.getMother().getMiddleName())
+                .femaleNationality(governmentRequest.getMother().getNationality())
+                .babyGender(governmentRequest.getGender())
+                .babyFirstName(governmentRequest.getFirstName())
+                .babyLastName(governmentRequest.getLastName())
+                .babyMiddleName(governmentRequest.getMiddleName())
                 .build();
     }
 

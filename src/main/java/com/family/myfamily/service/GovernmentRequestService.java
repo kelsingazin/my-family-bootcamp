@@ -4,6 +4,7 @@ import com.family.myfamily.model.dto.GovernmentRequestDto;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterBabyRequest;
 import com.family.myfamily.payload.request.RegisterCoupleRequest;
+import com.family.myfamily.payload.response.BabyBirthCertificate;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
 import com.family.myfamily.payload.response.MarriageCertificate;
@@ -27,4 +28,6 @@ public interface GovernmentRequestService {
     Check registerBaby(RegisterBabyRequest request);
 
     MarriageCertificate getMarriageCertificate(UUID id);
+
+    BabyBirthCertificate getBabyBirthCertificate(UUID id);
 }
