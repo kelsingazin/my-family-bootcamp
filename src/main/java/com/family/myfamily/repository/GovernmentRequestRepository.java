@@ -5,6 +5,7 @@ import com.family.myfamily.model.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,4 +17,6 @@ public interface GovernmentRequestRepository extends JpaRepository<GovernmentReq
     List<GovernmentRequestEntity> findAllByResponseUser(UserEntity responseUser);
 
     GovernmentRequestEntity findByRequestUserAndResponseUser(UserEntity requestUser, UserEntity responseUser);
+
+    GovernmentRequestEntity findByBirthDate(Date birthDate);
 }

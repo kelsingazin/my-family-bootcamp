@@ -257,6 +257,16 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
     @Override
     public Check registerBaby(RegisterBabyRequest request) {
+
+        GovernmentRequestEntity requestEntity = governmentRequestRepository.findByBirthDate(request.getBirthDate());
+
+        if (requestEntity != null) {
+            throw ServiceException.builder()
+                    .errorCode(ErrorCode.ALREADY_EXISTS)
+                    .message("такая услуга уже существует")
+                    .build();
+        }
+
         log.info("регистрация рождения ребенка {}", request.getUserId());
         UserEntity requestingUser = userRepository.findById(request.getUserId()).orElseThrow(
                 () -> ServiceException.builder()
