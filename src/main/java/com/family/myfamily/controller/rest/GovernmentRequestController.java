@@ -75,7 +75,7 @@ public class GovernmentRequestController {
         return governmentRequestService.getMarriageCertificate(id);
     }
 
-    @GetMapping("/marriage-certificate/{id}")
+    @GetMapping("/baby-birth-certificate/{id}")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public BabyBirthCertificate getBabyBirthCertificate (@PathVariable(name = "id") UUID id) {
         return governmentRequestService.getBabyBirthCertificate(id);
