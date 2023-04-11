@@ -53,4 +53,10 @@ public class GovernmentRequestController {
     public List<Notification> getNotifications(@PathVariable(name = "id") UUID id) {
         return governmentRequestService.getNotifications(id);
     }
+
+    @GetMapping("/report/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    public String generateReport(@PathVariable UUID id) {
+        return governmentRequestService.exportReport(id);
+    }
 }

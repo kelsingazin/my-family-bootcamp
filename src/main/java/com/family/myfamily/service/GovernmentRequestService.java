@@ -21,4 +21,6 @@ public interface GovernmentRequestService {
     CitiesResponse getAllCities();
 
     List<Notification> getNotifications(UUID id);
+
+    String exportReport(UUID requestId);
 }

@@ -18,17 +18,21 @@ import com.family.myfamily.service.GovernmentRequestService;
 import com.family.myfamily.utils.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -247,6 +251,55 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         }.getType();
 
         return modelMapper.map(list, listType);
+    }
+
+    @Override
+    public String exportReport(UUID requestId) {
+        String path = "/Users/kiselek/Desktop/rmr/";
+        Optional<GovernmentRequestEntity> optionalGovernmentRequest = governmentRequestRepository.findById(requestId);
+        GovernmentRequestEntity governmentRequest = optionalGovernmentRequest.orElseThrow(
+                () -> ServiceException.builder()
+                        .message("Запрос с таким id не существует")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build());
+        //load file and compile it
+        File file = null;
+        try {
+            file = ResourceUtils.getFile("classpath:check.jrxml");
+        } catch (FileNotFoundException e) {
+            log.error("Отсутствует jrxml файл");
+            throw new RuntimeException(e);
+        }
+        JasperReport jasperReport = null;
+        try {
+            jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
+        } catch (JRException e) {
+            log.error("Ошибка при компиляций отчета");
+            throw new RuntimeException(e);
+        }
+        List<GovernmentRequestEntity> grList = new ArrayList<>();
+        grList.add(governmentRequest);
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(grList);
+
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("createdBy", "Kelsingazin");
+        JasperPrint jasperPrint = null;
+        try {
+            jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
+        } catch (JRException e) {
+            log.error("Ошибка при заполнении отчета");
+            throw new RuntimeException(e);
+        }
+
+        try {
+            JasperExportManager.exportReportToPdfFile(jasperPrint, path + "check_" + LocalDateTime.now() + ".pdf");
+        } catch (JRException e) {
+            log.error("Ошибка при записи отчета в пдф файл");
+            throw new RuntimeException(e);
+        }
+
+        return "report generated in path : " + path;
     }
 
     private void sendLetter(UserEntity recipient, UserEntity partner, RequestStatus requestStatus) {
