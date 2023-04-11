@@ -14,6 +14,7 @@ import com.family.myfamily.payload.request.RegisterBabyRequest;
 import com.family.myfamily.payload.request.RegisterCoupleRequest;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
+import com.family.myfamily.payload.response.MarriageCertificate;
 import com.family.myfamily.payload.response.Notification;
 import com.family.myfamily.repository.*;
 import com.family.myfamily.service.GovernmentRequestService;
@@ -310,6 +311,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .middleName(request.getMiddleName())
                 .lastName(request.getLastName())
                 .type(RequestType.BABY_BIRTH)
+                .gender(request.getGender())
                 .build();
 
         log.info("сохранение запроса");
@@ -319,6 +321,47 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .date(new Date())
                 .type(RequestType.BABY_BIRTH)
                 .sum(Constants.BABY_PAYMENT)
+                .build();
+    }
+
+    @Override
+    public MarriageCertificate getMarriageCertificate(UUID id) {
+        UserEntity requestingUser = userRepository.findById(id).orElseThrow(
+                () -> ServiceException.builder()
+                        .message("нет запроса с таким идентификационным номером")
+                        .errorCode(ErrorCode.NOT_EXISTS)
+                        .build()
+        );
+        log.info("валдиация пользователя");
+        userValidation(requestingUser);
+
+        log.info("поиск заявки о заключении брака");
+
+        GovernmentRequestEntity requestEntity = governmentRequestRepository.findByRequestUserAndType(requestingUser, RequestType.MARRIAGE);
+        if (requestEntity == null) {
+            requestEntity = governmentRequestRepository.findByResponseUserAndType(requestingUser, RequestType.MARRIAGE);
+        }
+
+        IndividualEntity partnerOne = individualRepository.findByPhoneNumber(requestingUser.getPhoneNumber());
+        IndividualEntity partnerTwo = individualRepository.findByPhoneNumber(requestEntity.getResponseUser().getPhoneNumber());
+
+        IndividualEntity male = partnerOne.getGender().equals(Gender.MALE)? partnerOne : partnerTwo;
+        IndividualEntity female = partnerOne.getGender().equals(Gender.FEMALE)? partnerOne : partnerTwo;
+
+        return MarriageCertificate.builder()
+                .id(requestEntity.getId())
+                .city(requestEntity.getCity())
+                .office(requestEntity.getOffice())
+                .maleIin(male.getIin())
+                .maleFirstName(male.getFirstName())
+                .maleLastName(male.getLastName())
+                .maleMiddleName(male.getMiddleName())
+                .maleNationality(male.getNationality())
+                .femaleIin(female.getIin())
+                .femaleFirstName(female.getFirstName())
+                .femaleLastName(female.getLastName())
+                .femaleMiddleName(female.getMiddleName())
+                .femaleNationality(female.getNationality())
                 .build();
     }
 

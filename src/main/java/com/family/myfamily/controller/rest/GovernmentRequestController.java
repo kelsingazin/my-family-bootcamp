@@ -6,6 +6,7 @@ import com.family.myfamily.payload.request.RegisterBabyRequest;
 import com.family.myfamily.payload.request.RegisterCoupleRequest;
 import com.family.myfamily.payload.response.Check;
 import com.family.myfamily.payload.response.CitiesResponse;
+import com.family.myfamily.payload.response.MarriageCertificate;
 import com.family.myfamily.payload.response.Notification;
 import com.family.myfamily.service.GovernmentRequestService;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +66,11 @@ public class GovernmentRequestController {
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public Check registerBaby(@RequestBody RegisterBabyRequest request){
         return governmentRequestService.registerBaby(request);
+    }
+
+    @GetMapping("/marriage-certificate/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    public MarriageCertificate getMarriageCertificate (@PathVariable(name = "id") UUID id) {
+        return governmentRequestService.getMarriageCertificate(id);
     }
 }

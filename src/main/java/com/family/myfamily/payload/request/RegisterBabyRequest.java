@@ -1,5 +1,6 @@
 package com.family.myfamily.payload.request;
 
+import com.family.myfamily.model.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,4 +28,5 @@ public class RegisterBabyRequest {
     private String motherFirstName;
     private String motherLastName;
     private UUID cardId;
+    private Gender gender;
 }

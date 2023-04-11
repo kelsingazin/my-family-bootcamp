@@ -11,6 +11,8 @@ alter table requests
 alter table requests
     add column middle_name varchar(255);
 alter table requests
+    add column gender varchar(255);
+alter table requests
     add column father_individual_id uuid;
 alter table requests
     add column mother_individual_id uuid;

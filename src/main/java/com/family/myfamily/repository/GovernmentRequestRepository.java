@@ -2,6 +2,7 @@ package com.family.myfamily.repository;
 
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
 import com.family.myfamily.model.entities.UserEntity;
+import com.family.myfamily.model.enums.RequestType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,7 @@ public interface GovernmentRequestRepository extends JpaRepository<GovernmentReq
     GovernmentRequestEntity findByRequestUserAndResponseUser(UserEntity requestUser, UserEntity responseUser);
 
     GovernmentRequestEntity findByBirthDate(Date birthDate);
+
+    GovernmentRequestEntity findByRequestUserAndType(UserEntity requestUser, RequestType requestType);
+    GovernmentRequestEntity findByResponseUserAndType(UserEntity requestUser, RequestType requestType);
 }

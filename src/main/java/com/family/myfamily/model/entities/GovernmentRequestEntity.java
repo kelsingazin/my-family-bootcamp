@@ -1,5 +1,6 @@
 package com.family.myfamily.model.entities;
 
+import com.family.myfamily.model.enums.Gender;
 import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
 import lombok.AllArgsConstructor;
@@ -84,4 +85,8 @@ public class GovernmentRequestEntity {
 
     @Column(name = "middle_name")
     private String middleName;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 }
