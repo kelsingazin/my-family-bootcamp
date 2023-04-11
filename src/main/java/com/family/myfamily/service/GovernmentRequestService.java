@@ -25,6 +25,8 @@ public interface GovernmentRequestService {
 
     List<Notification> getNotifications(UUID id);
 
+    String exportReport(UUID requestId);
+
     Check registerBaby(RegisterBabyRequest request);
 
     MarriageCertificate getMarriageCertificate(UUID id);
