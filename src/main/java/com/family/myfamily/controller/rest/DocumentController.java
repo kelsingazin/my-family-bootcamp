@@ -42,7 +42,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/document/{documentId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public HttpStatus deleteDocument(@PathVariable UUID documentId) {
         return documentService.deleteDocument(documentId);
     }
