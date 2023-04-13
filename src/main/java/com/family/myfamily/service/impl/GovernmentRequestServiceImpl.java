@@ -179,19 +179,22 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                         .build()
         );
 
+        log.info("валидация пользователя");
         userValidation(user);
 
         if (request.getConfirm()) {
+            log.info("пользователь согласен заключить брак");
             if (governmentRequest.getIsPartnerPaid()) {
-                governmentRequest.setStatus(RequestStatus.PROCESSED);
-                governmentRequestRepository.save(governmentRequest);
+                log.info("партнер оплатил услугу");
+                governmentRequestRepository.updateStatus(governmentRequest.getId(), RequestStatus.PROCESSED);
                 individualRepository.updateMarriageStatus(governmentRequest.getRequestUser().getPhoneNumber(), MaritalStatus.MARRIED);
                 individualRepository.updateMarriageStatus(governmentRequest.getResponseUser().getPhoneNumber(), MaritalStatus.MARRIED);
                 sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.PROCESSED);
             } else {
+                log.info("партнер не оплатил услугу");
+                log.info("оплата услуги ");
                 makePayment(user, request.getCardId(), RequestType.MARRIAGE);
-                governmentRequest.setStatus(RequestStatus.PROCESSED);
-                governmentRequestRepository.save(governmentRequest);
+                governmentRequestRepository.updateStatus(governmentRequest.getId(), RequestStatus.PROCESSED);
                 individualRepository.updateMarriageStatus(governmentRequest.getRequestUser().getPhoneNumber(), MaritalStatus.MARRIED);
                 individualRepository.updateMarriageStatus(governmentRequest.getResponseUser().getPhoneNumber(), MaritalStatus.MARRIED);
                 sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.PROCESSED);
@@ -204,7 +207,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
             }
         } else {
             governmentRequest.setStatus(RequestStatus.REJECTED);
-            governmentRequestRepository.save(governmentRequest);
+            governmentRequestRepository.updateStatus(governmentRequest.getId(), RequestStatus.REJECTED);
             sendLetter(governmentRequest.getRequestUser(), governmentRequest.getResponseUser(), RequestStatus.REJECTED);
         }
 
