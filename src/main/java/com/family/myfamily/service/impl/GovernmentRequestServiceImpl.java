@@ -256,10 +256,6 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     @Override
     public String exportReport(UUID requestId) {
         String path = "/export/";
-        File file;
-        JasperReport jasperReport;
-        JasperPrint jasperPrint;
-
         Optional<GovernmentRequestEntity> optionalGovernmentRequest = governmentRequestRepository.findById(requestId);
         GovernmentRequestEntity governmentRequest = optionalGovernmentRequest.orElseThrow(
                 () -> ServiceException.builder()
@@ -267,17 +263,25 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
 
+        File file = null;
+        JasperReport jasperReport = null;
+        JasperPrint jasperPrint = null;
+
         try {
             file = ResourceUtils.getFile("classpath:check.jrxml");
             jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
-        } catch (FileNotFoundException | JRException e) {
-            log.error("Отсутствует jrxml файл/Ошибка при компиляций отчета");
+        } catch (FileNotFoundException e) {
+            log.error("Отсутствует jrxml файл");
+            throw new RuntimeException(e);
+        } catch (JRException e) {
+            log.error("Ошибка при компиляций отчета");
             throw new RuntimeException(e);
         }
 
         List<GovernmentRequestEntity> grList = new ArrayList<>();
         grList.add(governmentRequest);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(grList);
+
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("createdBy", "Kelsingazin");
 
@@ -285,7 +289,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
             jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
             JasperExportManager.exportReportToPdfFile(jasperPrint, path + "check_" + LocalDateTime.now() + ".pdf");
         } catch (JRException e) {
-            log.error("Ошибка при заполнении отчета/при записи отчета в пдф файл");
+            log.error("Ошибка при заполнении отчета или при записи отчета в пдф файл");
             throw new RuntimeException(e);
         }
 
