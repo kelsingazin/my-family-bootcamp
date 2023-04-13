@@ -40,7 +40,7 @@ public class CardController {
     }
 
     @DeleteMapping("/card/{cardId}")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public HttpStatus deleteCard(@PathVariable UUID cardId) {
         return cardService.deleteCardByCardId(cardId);
     }

@@ -1,5 +1,6 @@
 package com.family.myfamily.model.entities;
 
+import com.family.myfamily.model.enums.Gender;
 import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
 import lombok.AllArgsConstructor;
@@ -32,7 +33,6 @@ public class GovernmentRequestEntity {
 
     @ManyToOne
     @JoinColumn(name = "response_user_id")
-    @NotNull(message = "individual is required")
     private UserEntity responseUser;
 
     @Column(name = "city")
@@ -54,4 +54,31 @@ public class GovernmentRequestEntity {
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private RequestType type;
+
+    @ManyToOne
+    @JoinColumn(name = "mother_individual_id")
+    private IndividualEntity mother;
+
+    @ManyToOne
+    @JoinColumn(name = "father_individual_id")
+    private IndividualEntity father;
+
+    @Column(name = "country")
+    private String country;
+
+    @Column(name = "birth_date")
+    private Date birthDate;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "middle_name")
+    private String middleName;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 }

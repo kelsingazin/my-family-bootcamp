@@ -41,3 +41,7 @@ databaseChangeLog:
       file: db/changelog/020_alter_table_users.sql
   - include:
       file: db/changelog/021_add_constraint_users.sql
+  - include:
+      file: db/changelog/022_add_columns_requests.sql
+  - include:
+      file: db/changelog/023_change_constraints_requests.sql

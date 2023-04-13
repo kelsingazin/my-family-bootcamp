@@ -10,4 +10,7 @@ public class Constants {
     public static final String REJECTED_MARRIAGE_CONFIRM = """
             Уважаемый(ая) %s %s,\s
             К сожалению, Ваш брак с %s %s не был зарегистрирован!\s""";
+
+    public static final Double MARRIAGE_PAYMENT = 5000.0;
+    public static final Double BABY_PAYMENT = 3000.0;
 }
