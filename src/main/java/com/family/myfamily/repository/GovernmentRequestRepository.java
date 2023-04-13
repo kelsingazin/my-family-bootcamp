@@ -1,6 +1,7 @@
 package com.family.myfamily.repository;
 
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
+import com.family.myfamily.model.entities.IndividualEntity;
 import com.family.myfamily.model.entities.UserEntity;
 import com.family.myfamily.model.enums.RequestStatus;
 import com.family.myfamily.model.enums.RequestType;
