@@ -41,15 +41,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
-import javax.transaction.Transactional;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -414,7 +416,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .office(governmentRequest.getOffice())
                 .country(governmentRequest.getCountry())
                 .father(new Parent(governmentRequest.getFather().getFirstName(), governmentRequest.getFather().getLastName(),
-                                    governmentRequest.getFather().getMiddleName(), governmentRequest.getFather().getNationality()))
+                        governmentRequest.getFather().getMiddleName(), governmentRequest.getFather().getNationality()))
                 .mother(new Parent(governmentRequest.getMother().getFirstName(), governmentRequest.getMother().getLastName(),
                         governmentRequest.getMother().getMiddleName(), governmentRequest.getMother().getNationality()))
                 .babyGender(governmentRequest.getGender())
