@@ -3,6 +3,7 @@ package com.family.myfamily.service.impl;
 import com.family.myfamily.controller.exceptions.ServiceException;
 import com.family.myfamily.mapper.CityMapper;
 import com.family.myfamily.model.dto.GovernmentRequestDto;
+import com.family.myfamily.model.dto.Parent;
 import com.family.myfamily.model.entities.CardEntity;
 import com.family.myfamily.model.entities.CityEntity;
 import com.family.myfamily.model.entities.GovernmentRequestEntity;
@@ -35,11 +36,14 @@ import org.modelmapper.TypeToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -139,7 +143,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                     .requestId(savedRequest.getId())
                     .sum(Constants.MARRIAGE_PAYMENT)
                     .type(RequestType.MARRIAGE)
-                    .date(new Date())
+                    .date(LocalDateTime.now())
                     .build();
         } else {
             GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
@@ -147,7 +151,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                     .requestId(savedRequest.getId())
                     .sum(0.0)
                     .type(RequestType.MARRIAGE)
-                    .date(new Date())
+                    .date(LocalDateTime.now())
                     .build();
         }
     }
@@ -195,7 +199,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                         .requestId(governmentRequest.getId())
                         .sum(Constants.MARRIAGE_PAYMENT)
                         .type(RequestType.MARRIAGE)
-                        .date(new Date())
+                        .date(LocalDateTime.now())
                         .build();
             }
         } else {
@@ -208,7 +212,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .requestId(request.getGovernmentRequestId())
                 .sum(0.0)
                 .type(RequestType.MARRIAGE)
-                .date(new Date())
+                .date(LocalDateTime.now())
                 .build();
     }
 
@@ -266,6 +270,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     }
 
     @Override
+    @Transactional
     public Check registerBaby(RegisterBabyRequest request) {
 
         GovernmentRequestEntity requestEntity = governmentRequestRepository.findByBirthDate(request.getBirthDate());
@@ -290,14 +295,14 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         IndividualEntity mother = individualRepository.findByIin(request.getMotherIin());
         IndividualEntity father = individualRepository.findByIin(request.getFatherIin());
 
-        if (!mother.getGender().equals(Gender.FEMALE) || !father.getGender().equals(Gender.MALE)) {
+        if (!Objects.equals(mother.getGender(), Gender.FEMALE) || !Objects.equals(father.getGender(), Gender.MALE)) {
             throw ServiceException.builder()
                     .errorCode(ErrorCode.NOT_ALLOWED)
                     .message("неправильно ввели данные отца или мамы")
                     .build();
         }
 
-        if (!requestingUser.getPhoneNumber().equals(mother.getPhoneNumber()) && !requestingUser.getPhoneNumber().equals(father.getPhoneNumber())) {
+        if (!Objects.equals(requestingUser.getPhoneNumber(), mother.getPhoneNumber()) && !Objects.equals(requestingUser.getPhoneNumber(), father.getPhoneNumber())) {
             throw ServiceException.builder()
                     .errorCode(ErrorCode.NOT_ALLOWED)
                     .message("вы можете зарегистрировать только своего ребенка")
@@ -327,13 +332,14 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
         GovernmentRequestEntity savedRequest = governmentRequestRepository.save(governmentRequest);
         return Check.builder()
                 .requestId(savedRequest.getId())
-                .date(new Date())
+                .date(LocalDateTime.now())
                 .type(RequestType.BABY_BIRTH)
                 .sum(Constants.BABY_PAYMENT)
                 .build();
     }
 
     @Override
+    @Transactional
     public MarriageCertificate getMarriageCertificate(UUID id) {
         UserEntity requestingUser = userRepository.findById(id).orElseThrow(
                 () -> ServiceException.builder()
@@ -375,6 +381,7 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     }
 
     @Override
+    @Transactional
     public BabyBirthCertificate getBabyBirthCertificate(UUID id) {
         UserEntity requestingUser = userRepository.findById(id).orElseThrow(
                 () -> ServiceException.builder()
@@ -397,14 +404,10 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                 .city(governmentRequest.getCity())
                 .office(governmentRequest.getOffice())
                 .country(governmentRequest.getCountry())
-                .maleFirstName(governmentRequest.getFather().getFirstName())
-                .maleLastName(governmentRequest.getFather().getLastName())
-                .maleMiddleName(governmentRequest.getFather().getMiddleName())
-                .maleNationality(governmentRequest.getFather().getNationality())
-                .femaleFirstName(governmentRequest.getMother().getFirstName())
-                .femaleLastName(governmentRequest.getMother().getLastName())
-                .babyMiddleName(governmentRequest.getMother().getMiddleName())
-                .femaleNationality(governmentRequest.getMother().getNationality())
+                .father(new Parent(governmentRequest.getFather().getFirstName(), governmentRequest.getFather().getLastName(),
+                                    governmentRequest.getFather().getMiddleName(), governmentRequest.getFather().getNationality()))
+                .mother(new Parent(governmentRequest.getMother().getFirstName(), governmentRequest.getMother().getLastName(),
+                        governmentRequest.getMother().getMiddleName(), governmentRequest.getMother().getNationality()))
                 .babyGender(governmentRequest.getGender())
                 .babyFirstName(governmentRequest.getFirstName())
                 .babyLastName(governmentRequest.getLastName())
