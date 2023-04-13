@@ -417,47 +417,37 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
 
     @Override
     public String exportReport(UUID requestId) {
-        String path = "/Users/kiselek/Desktop/rmr/";
+        String path = "/export/";
+        File file;
+        JasperReport jasperReport;
+        JasperPrint jasperPrint;
+
         Optional<GovernmentRequestEntity> optionalGovernmentRequest = governmentRequestRepository.findById(requestId);
         GovernmentRequestEntity governmentRequest = optionalGovernmentRequest.orElseThrow(
                 () -> ServiceException.builder()
                         .message("Запрос с таким id не существует")
                         .errorCode(ErrorCode.NOT_EXISTS)
                         .build());
-        //load file and compile it
-        File file = null;
+
         try {
             file = ResourceUtils.getFile("classpath:check.jrxml");
-        } catch (FileNotFoundException e) {
-            log.error("Отсутствует jrxml файл");
-            throw new RuntimeException(e);
-        }
-        JasperReport jasperReport = null;
-        try {
             jasperReport = JasperCompileManager.compileReport(file.getAbsolutePath());
-        } catch (JRException e) {
-            log.error("Ошибка при компиляций отчета");
+        } catch (FileNotFoundException | JRException e) {
+            log.error("Отсутствует jrxml файл/Ошибка при компиляций отчета");
             throw new RuntimeException(e);
         }
+
         List<GovernmentRequestEntity> grList = new ArrayList<>();
         grList.add(governmentRequest);
         JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(grList);
-
-
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("createdBy", "Kelsingazin");
-        JasperPrint jasperPrint = null;
-        try {
-            jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-        } catch (JRException e) {
-            log.error("Ошибка при заполнении отчета");
-            throw new RuntimeException(e);
-        }
 
         try {
+            jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
             JasperExportManager.exportReportToPdfFile(jasperPrint, path + "check_" + LocalDateTime.now() + ".pdf");
         } catch (JRException e) {
-            log.error("Ошибка при записи отчета в пдф файл");
+            log.error("Ошибка при заполнении отчета/при записи отчета в пдф файл");
             throw new RuntimeException(e);
         }
 
