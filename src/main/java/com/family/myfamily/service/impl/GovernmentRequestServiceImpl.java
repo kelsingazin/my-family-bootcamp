@@ -241,10 +241,10 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
     }
 
     @Override
-    public CitiesResponse getAllCities() {
+    public CitiesResponse getAllCities(RequestType type) {
         List<CityEntity> cityEntities = cityRepository.findAll();
         return CitiesResponse.builder()
-                .sum(Constants.MARRIAGE_PAYMENT)
+                .sum(Objects.equals(type, RequestType.MARRIAGE)?Constants.MARRIAGE_PAYMENT:Constants.BABY_PAYMENT)
                 .cityDtoLis(cityMapper.cityDtoList(cityEntities))
                 .build();
     }

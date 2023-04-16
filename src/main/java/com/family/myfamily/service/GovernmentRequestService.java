@@ -1,6 +1,7 @@
 package com.family.myfamily.service;
 
 import com.family.myfamily.model.dto.GovernmentRequestDto;
+import com.family.myfamily.model.enums.RequestType;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterBabyRequest;
 import com.family.myfamily.payload.request.RegisterCoupleRequest;
@@ -21,7 +22,7 @@ public interface GovernmentRequestService {
 
     List<GovernmentRequestDto> getAllRequests(UUID id);
 
-    CitiesResponse getAllCities();
+    CitiesResponse getAllCities(RequestType type);
 
     List<Notification> getNotifications(UUID id);
 

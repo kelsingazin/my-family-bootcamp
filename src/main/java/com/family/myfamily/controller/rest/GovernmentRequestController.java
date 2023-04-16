@@ -1,6 +1,7 @@
 package com.family.myfamily.controller.rest;
 
 import com.family.myfamily.model.dto.GovernmentRequestDto;
+import com.family.myfamily.model.enums.RequestType;
 import com.family.myfamily.payload.request.ConfirmMarriage;
 import com.family.myfamily.payload.request.RegisterBabyRequest;
 import com.family.myfamily.payload.request.RegisterCoupleRequest;
@@ -45,10 +46,10 @@ public class GovernmentRequestController {
         return governmentRequestService.getAllRequests(id);
     }
 
-    @GetMapping("/register-couple")
+    @GetMapping("/cities")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
-    public CitiesResponse getAllCities() {
-        return governmentRequestService.getAllCities();
+    public CitiesResponse getAllCities(@RequestParam(name = "request_type") RequestType type)  {
+        return governmentRequestService.getAllCities(type);
     }
 
     @GetMapping("/notifications/user-id/{id}")
