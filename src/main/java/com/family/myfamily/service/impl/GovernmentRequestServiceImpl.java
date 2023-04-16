@@ -86,8 +86,9 @@ public class GovernmentRequestServiceImpl implements GovernmentRequestService {
                     .errorCode(ErrorCode.NOT_ENOUGH_MONEY)
                     .build();
         }
-        card.setBalance(card.getBalance() - payAmount);
-        cardRepository.save(card);
+//        card.setBalance(card.getBalance() - payAmount);
+//        cardRepository.save(card);
+        cardRepository.updateCardBalanceStatus(card.getBalance() - payAmount, cardId);
     }
 
     private void checkMarriage(IndividualEntity user, IndividualEntity partner) {
