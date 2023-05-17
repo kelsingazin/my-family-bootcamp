@@ -9,7 +9,7 @@
 Используйте приведенный ниже URL для клонирования исходного кода
 
 ```sh
-git clone https://gitlab.com/bootcamp_myfamily/my_family_backend.git
+git clone git@github.com:kelsingazin/my-family-bootcamp.git
 ```
 
 
